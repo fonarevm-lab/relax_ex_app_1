@@ -37,6 +37,12 @@
   @keyframes drift{from{transform:translateX(-150px);}to{transform:translateX(calc(100vw + 150px));}}
   /* === Sky overlays === */
   .sky-layer{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,220,230,.6) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(255,230,200,.5) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(200,230,255,.35) 0%,transparent 60%);z-index:0;}
+  /* === Background scenery (house + tree) === */
+  .house-wrap{position:absolute;bottom:3%;left:2%;width:38%;max-width:170px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));}
+  .house-svg{display:block;width:100%;height:auto;}
+  .tree-wrap{position:absolute;bottom:3%;right:2%;width:32%;max-width:140px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;}
+  .tree-svg{display:block;width:100%;height:auto;}
+  @keyframes treeSway{0%,100%{transform:rotate(-1deg);}50%{transform:rotate(1.2deg);}}
   /* === Ground === */
   .ground{position:absolute;bottom:0;left:0;right:0;height:32%;background:linear-gradient(180deg,var(--grass) 0%,var(--grass-d) 100%);border-top-left-radius:50% 25%;border-top-right-radius:50% 25%;box-shadow:inset 0 4px 0 rgba(255,255,255,.2);z-index:2;}
   .ground::before{content:"";position:absolute;top:-6px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 10% 50%,var(--grass) 0%,transparent 50%),radial-gradient(ellipse at 30% 50%,var(--grass-l) 0%,transparent 60%),radial-gradient(ellipse at 55% 50%,var(--grass) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,var(--grass-l) 0%,transparent 60%),radial-gradient(ellipse at 95% 50%,var(--grass) 0%,transparent 50%);background-size:60px 14px;background-repeat:repeat-x;}
@@ -104,6 +110,91 @@
   <div class="cloud" style="top:8%;width:60px;height:20px;animation-duration:90s;animation-delay:-30s;opacity:.7;"></div>
   <div class="cloud" style="top:22%;width:50px;height:18px;animation-duration:75s;animation-delay:-50s;opacity:.6;"></div>
   <div class="ground"></div>
+
+  <div class="house-wrap">
+    <svg class="house-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fbe4cd"/>
+          <stop offset="100%" stop-color="#e8c5a3"/>
+        </linearGradient>
+        <linearGradient id="roofGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#e89270"/>
+          <stop offset="100%" stop-color="#b86344"/>
+        </linearGradient>
+        <linearGradient id="windowGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#5a6a8a"/>
+          <stop offset="100%" stop-color="#3a4a6a"/>
+        </linearGradient>
+        <filter id="wc-bg" x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="9"/>
+          <feDisplacementMap in="SourceGraphic" scale="3"/>
+          <feGaussianBlur stdDeviation="0.4"/>
+        </filter>
+      </defs>
+      <g filter="url(#wc-bg)">
+        <!-- walls -->
+        <rect x="32" y="100" width="136" height="92" fill="url(#wallGrad)"/>
+        <!-- roof -->
+        <polygon points="22,105 100,42 178,105" fill="url(#roofGrad)"/>
+        <!-- roof edge highlight -->
+        <line x1="22" y1="105" x2="178" y2="105" stroke="#8a4530" stroke-width="2" opacity=".5"/>
+        <!-- chimney -->
+        <rect x="140" y="50" width="14" height="38" fill="#a85a3a"/>
+        <rect x="138" y="48" width="18" height="5" fill="#7a3a20"/>
+        <!-- door -->
+        <rect x="108" y="138" width="26" height="54" rx="2" fill="#7a4a2a"/>
+        <rect x="108" y="138" width="26" height="54" rx="2" fill="none" stroke="#5a3520" stroke-width="1.2"/>
+        <circle cx="129" cy="166" r="1.6" fill="#ffd966"/>
+        <!-- window (open, dark inside) -->
+        <rect x="50" y="120" width="36" height="34" fill="url(#windowGrad)"/>
+        <rect x="50" y="120" width="36" height="34" fill="none" stroke="#a88060" stroke-width="3"/>
+        <line x1="68" y1="120" x2="68" y2="154" stroke="#a88060" stroke-width="2.4"/>
+        <line x1="50" y1="137" x2="86" y2="137" stroke="#a88060" stroke-width="2.4"/>
+        <!-- window sill -->
+        <rect x="46" y="153" width="44" height="4" fill="#a88060"/>
+        <!-- small window near door -->
+        <rect x="92" y="120" width="12" height="14" fill="url(#windowGrad)"/>
+        <rect x="92" y="120" width="12" height="14" fill="none" stroke="#a88060" stroke-width="1.8"/>
+        <!-- ground shadow under house -->
+        <ellipse cx="100" cy="194" rx="78" ry="3" fill="rgba(80,60,80,.18)"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="tree-wrap">
+    <svg class="tree-svg" viewBox="0 0 140 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="crownGrad" cx="50%" cy="40%">
+          <stop offset="0%" stop-color="#9ad99a"/>
+          <stop offset="60%" stop-color="#6dbf6b"/>
+          <stop offset="100%" stop-color="#4a9a4a"/>
+        </radialGradient>
+        <linearGradient id="trunkGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#7a4a2a"/>
+          <stop offset="50%" stop-color="#9a6a4a"/>
+          <stop offset="100%" stop-color="#5a3520"/>
+        </linearGradient>
+        <filter id="wc-tree" x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="13"/>
+          <feDisplacementMap in="SourceGraphic" scale="4"/>
+          <feGaussianBlur stdDeviation="0.4"/>
+        </filter>
+      </defs>
+      <g filter="url(#wc-tree)">
+        <!-- trunk -->
+        <path d="M 60 195 Q 58 160 62 120 Q 64 100 70 95 Q 76 100 78 120 Q 82 160 80 195 Z" fill="url(#trunkGrad)"/>
+        <!-- crown (cluster of bumps, no flowers) -->
+        <ellipse cx="70" cy="80" rx="56" ry="50" fill="url(#crownGrad)"/>
+        <ellipse cx="38" cy="92" rx="28" ry="26" fill="url(#crownGrad)"/>
+        <ellipse cx="100" cy="92" rx="28" ry="26" fill="url(#crownGrad)"/>
+        <ellipse cx="70" cy="55" rx="36" ry="28" fill="url(#crownGrad)"/>
+        <ellipse cx="70" cy="105" rx="42" ry="22" fill="url(#crownGrad)"/>
+        <!-- subtle inner shadow on crown -->
+        <ellipse cx="90" cy="100" rx="14" ry="10" fill="#4a9a4a" opacity=".35"/>
+      </g>
+    </svg>
+  </div>
 
   <div class="bush-wrap" id="bush-wrap">
     <svg class="bush-svg" id="bush" viewBox="0 0 240 220" width="240" height="220">
@@ -352,7 +443,7 @@ function placeFlowers(){
 ============================================================ */
 function makeKitten(coat, adult){
   const NS = "http://www.w3.org/2000/svg";
-  const size = adult ? 100 : 72;
+  const size = adult ? 110 : 78;
   const vb = 100;
   const wrap = document.createElement("div");
   wrap.className = "kitten" + (adult ? " adult" : "");
@@ -371,7 +462,6 @@ function makeKitten(coat, adult){
   };
   const c = coats[coat] || coats.orange;
 
-  // filter for watercolor edge
   const defs = document.createElementNS(NS,"defs");
   defs.innerHTML = `
     <filter id="wc-${coat}" x="-10%" y="-10%" width="120%" height="120%">
@@ -379,101 +469,115 @@ function makeKitten(coat, adult){
       <feDisplacementMap in="SourceGraphic" scale="2.2"/>
       <feGaussianBlur stdDeviation="0.35"/>
     </filter>
-    <radialGradient id="body-${coat}" cx="50%" cy="40%">
+    <linearGradient id="body-${coat}" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="${c.light}"/>
+      <stop offset="60%" stop-color="${c.main}"/>
       <stop offset="100%" stop-color="${c.main}"/>
-    </radialGradient>
+    </linearGradient>
   `;
   svg.appendChild(defs);
 
   const g = document.createElementNS(NS,"g");
   g.setAttribute("filter",`url(#wc-${coat})`);
 
-  // shadow under
+  // shadow
   const sh = document.createElementNS(NS,"ellipse");
-  sh.setAttribute("cx",50); sh.setAttribute("cy",94); sh.setAttribute("rx",26); sh.setAttribute("ry",3.5);
+  sh.setAttribute("cx",52); sh.setAttribute("cy",93); sh.setAttribute("rx",28); sh.setAttribute("ry",3.2);
   sh.setAttribute("fill","rgba(80,60,80,.25)");
   g.appendChild(sh);
 
-  // tail (drawn first so body covers base)
+  // tail (behind body)
   const tail = document.createElementNS(NS,"path");
-  tail.setAttribute("d","M 72 70 Q 96 58 92 38");
+  tail.setAttribute("d","M 30 62 Q 12 52 16 32 Q 22 22 30 32 Q 32 42 30 55");
   tail.setAttribute("stroke",c.main);
-  tail.setAttribute("stroke-width",8);
+  tail.setAttribute("stroke-width","7");
   tail.setAttribute("fill","none");
   tail.setAttribute("stroke-linecap","round");
   tail.setAttribute("class","tail");
   g.appendChild(tail);
-  // tail tip
   const tailTip = document.createElementNS(NS,"circle");
-  tailTip.setAttribute("cx",92); tailTip.setAttribute("cy",38); tailTip.setAttribute("r",4);
+  tailTip.setAttribute("cx",22); tailTip.setAttribute("cy",30); tailTip.setAttribute("r",3.5);
   tailTip.setAttribute("fill", c.dark);
   g.appendChild(tailTip);
 
-  // body
+  // back leg (far, behind)
+  const legBackFar = document.createElementNS(NS,"ellipse");
+  legBackFar.setAttribute("cx",38); legBackFar.setAttribute("cy",82); legBackFar.setAttribute("rx",4); legBackFar.setAttribute("ry",6.5);
+  legBackFar.setAttribute("fill",c.dark);
+  legBackFar.setAttribute("opacity",".7");
+  g.appendChild(legBackFar);
+
+  // body (horizontal oval)
   const body = document.createElementNS(NS,"ellipse");
-  body.setAttribute("cx",50); body.setAttribute("cy",68); body.setAttribute("rx",26); body.setAttribute("ry",20);
+  body.setAttribute("cx",48); body.setAttribute("cy",66); body.setAttribute("rx",26); body.setAttribute("ry",15);
   body.setAttribute("fill",`url(#body-${coat})`);
   g.appendChild(body);
 
   // belly
   const belly = document.createElementNS(NS,"ellipse");
-  belly.setAttribute("cx",50); belly.setAttribute("cy",72); belly.setAttribute("rx",16); belly.setAttribute("ry",11);
+  belly.setAttribute("cx",50); belly.setAttribute("cy",72); belly.setAttribute("rx",18); belly.setAttribute("ry",8);
   belly.setAttribute("fill",c.belly);
-  belly.setAttribute("opacity",".65");
+  belly.setAttribute("opacity",".7");
   g.appendChild(belly);
 
-  // legs
-  const legL = document.createElementNS(NS,"ellipse");
-  legL.setAttribute("cx",38); legL.setAttribute("cy",86); legL.setAttribute("rx",5.5); legL.setAttribute("ry",7);
-  legL.setAttribute("fill",c.main);
-  g.appendChild(legL);
-  const legR = document.createElementNS(NS,"ellipse");
-  legR.setAttribute("cx",62); legR.setAttribute("cy",86); legR.setAttribute("rx",5.5); legR.setAttribute("ry",7);
-  legR.setAttribute("fill",c.main);
-  g.appendChild(legR);
-  // paws
-  const pawL = document.createElementNS(NS,"ellipse");
-  pawL.setAttribute("cx",38); pawL.setAttribute("cy",92); pawL.setAttribute("rx",5); pawL.setAttribute("ry",3);
-  pawL.setAttribute("fill",c.belly);
-  g.appendChild(pawL);
-  const pawR = document.createElementNS(NS,"ellipse");
-  pawR.setAttribute("cx",62); pawR.setAttribute("cy",92); pawR.setAttribute("rx",5); pawR.setAttribute("ry",3);
-  pawR.setAttribute("fill",c.belly);
-  g.appendChild(pawR);
+  // back leg (near)
+  const legBack = document.createElementNS(NS,"ellipse");
+  legBack.setAttribute("cx",42); legBack.setAttribute("cy",84); legBack.setAttribute("rx",4.5); legBack.setAttribute("ry",7.5);
+  legBack.setAttribute("fill",c.main);
+  g.appendChild(legBack);
+  const pawB = document.createElementNS(NS,"ellipse");
+  pawB.setAttribute("cx",42); pawB.setAttribute("cy",91); pawB.setAttribute("rx",4.2); pawB.setAttribute("ry",2.5);
+  pawB.setAttribute("fill",c.belly);
+  g.appendChild(pawB);
 
-  // head
+  // front leg (near)
+  const legFront = document.createElementNS(NS,"ellipse");
+  legFront.setAttribute("cx",62); legFront.setAttribute("cy",83); legFront.setAttribute("rx",4.5); legFront.setAttribute("ry",8);
+  legFront.setAttribute("fill",c.main);
+  g.appendChild(legFront);
+  const pawF = document.createElementNS(NS,"ellipse");
+  pawF.setAttribute("cx",62); pawF.setAttribute("cy",91); pawF.setAttribute("rx",4.2); pawF.setAttribute("ry",2.5);
+  pawF.setAttribute("fill",c.belly);
+  g.appendChild(pawF);
+
+  // head (to the right)
   const head = document.createElementNS(NS,"circle");
-  head.setAttribute("cx",50); head.setAttribute("cy",38); head.setAttribute("r",20);
+  head.setAttribute("cx",74); head.setAttribute("cy",48); head.setAttribute("r",15);
   head.setAttribute("fill",c.main);
   g.appendChild(head);
 
+  // muzzle (lighter front)
+  const muzzle = document.createElementNS(NS,"ellipse");
+  muzzle.setAttribute("cx",82); muzzle.setAttribute("cy",52); muzzle.setAttribute("rx",8); muzzle.setAttribute("ry",6);
+  muzzle.setAttribute("fill",c.belly);
+  muzzle.setAttribute("opacity",".85");
+  g.appendChild(muzzle);
+
   // ears
-  const earL = document.createElementNS(NS,"polygon");
-  earL.setAttribute("points","30,32 38,12 46,30");
-  earL.setAttribute("fill",c.main);
-  g.appendChild(earL);
-  const earR = document.createElementNS(NS,"polygon");
-  earR.setAttribute("points","70,32 62,12 54,30");
-  earR.setAttribute("fill",c.main);
-  g.appendChild(earR);
-  // inner ears
-  const earLi = document.createElementNS(NS,"polygon");
-  earLi.setAttribute("points","33,30 38,17 43,29");
-  earLi.setAttribute("fill","#ffb3c6");
-  earLi.setAttribute("opacity",".85");
-  g.appendChild(earLi);
-  const earRi = document.createElementNS(NS,"polygon");
-  earRi.setAttribute("points","67,30 62,17 57,29");
-  earRi.setAttribute("fill","#ffb3c6");
-  earRi.setAttribute("opacity",".85");
-  g.appendChild(earRi);
+  const ear1 = document.createElementNS(NS,"polygon");
+  ear1.setAttribute("points","66,38 70,22 76,38");
+  ear1.setAttribute("fill",c.main);
+  g.appendChild(ear1);
+  const ear2 = document.createElementNS(NS,"polygon");
+  ear2.setAttribute("points","78,40 80,26 86,40");
+  ear2.setAttribute("fill",c.main);
+  g.appendChild(ear2);
+  const ear1i = document.createElementNS(NS,"polygon");
+  ear1i.setAttribute("points","68,37 71,28 74,37");
+  ear1i.setAttribute("fill","#ffb3c6");
+  ear1i.setAttribute("opacity",".85");
+  g.appendChild(ear1i);
+  const ear2i = document.createElementNS(NS,"polygon");
+  ear2i.setAttribute("points","80,38 81,32 84,38");
+  ear2i.setAttribute("fill","#ffb3c6");
+  ear2i.setAttribute("opacity",".85");
+  g.appendChild(ear2i);
 
   // siamese mask
   if(c.mask){
     const mask = document.createElementNS(NS,"ellipse");
-    mask.setAttribute("cx",50); mask.setAttribute("cy",44);
-    mask.setAttribute("rx",15); mask.setAttribute("ry",10);
+    mask.setAttribute("cx",78); mask.setAttribute("cy",50);
+    mask.setAttribute("rx",9); mask.setAttribute("ry",6);
     mask.setAttribute("fill",c.mask);
     mask.setAttribute("opacity",".55");
     g.appendChild(mask);
@@ -481,27 +585,26 @@ function makeKitten(coat, adult){
   // tuxedo white chest
   if(coat==="tuxedo"){
     const chest = document.createElementNS(NS,"path");
-    chest.setAttribute("d","M 38 56 Q 50 70 62 56 Q 60 80 50 82 Q 40 80 38 56 Z");
+    chest.setAttribute("d","M 60 56 Q 70 64 78 56 Q 80 70 70 72 Q 60 70 60 56 Z");
     chest.setAttribute("fill","#ffffff");
     chest.setAttribute("opacity",".95");
     g.appendChild(chest);
   }
   // tabby stripes
   if(c.stripes){
-    for(let i=0;i<3;i++){
+    for(let i=0;i<4;i++){
       const s = document.createElementNS(NS,"path");
-      s.setAttribute("d",`M ${30+i*4} 60 Q ${32+i*4} 70 ${30+i*4} 80`);
+      s.setAttribute("d",`M ${30+i*8} 56 Q ${32+i*8} 60 ${34+i*8} 64`);
       s.setAttribute("stroke",c.stripes);
-      s.setAttribute("stroke-width","1.8");
+      s.setAttribute("stroke-width","1.6");
       s.setAttribute("fill","none");
       s.setAttribute("opacity",".55");
       g.appendChild(s);
     }
-    // head stripes
     const hs = document.createElementNS(NS,"path");
-    hs.setAttribute("d","M 42 24 Q 50 22 58 24");
+    hs.setAttribute("d","M 70 38 Q 76 36 82 38");
     hs.setAttribute("stroke",c.stripes);
-    hs.setAttribute("stroke-width","1.5");
+    hs.setAttribute("stroke-width","1.3");
     hs.setAttribute("fill","none");
     hs.setAttribute("opacity",".5");
     g.appendChild(hs);
@@ -509,87 +612,76 @@ function makeKitten(coat, adult){
   // calico spots
   if(c.spots){
     const sp1 = document.createElementNS(NS,"ellipse");
-    sp1.setAttribute("cx",32); sp1.setAttribute("cy",62);
-    sp1.setAttribute("rx",6); sp1.setAttribute("ry",4.5);
+    sp1.setAttribute("cx",36); sp1.setAttribute("cy",62);
+    sp1.setAttribute("rx",5); sp1.setAttribute("ry",4);
     sp1.setAttribute("fill",c.dark);
     g.appendChild(sp1);
     const sp2 = document.createElementNS(NS,"ellipse");
-    sp2.setAttribute("cx",68); sp2.setAttribute("cy",70);
-    sp2.setAttribute("rx",5); sp2.setAttribute("ry",5);
+    sp2.setAttribute("cx",56); sp2.setAttribute("cy",68);
+    sp2.setAttribute("rx",4.5); sp2.setAttribute("ry",4.5);
     sp2.setAttribute("fill",c.spots);
     g.appendChild(sp2);
-    // orange patch on head
     const sp3 = document.createElementNS(NS,"ellipse");
-    sp3.setAttribute("cx",62); sp3.setAttribute("cy",32);
-    sp3.setAttribute("rx",6); sp3.setAttribute("ry",4);
+    sp3.setAttribute("cx",74); sp3.setAttribute("cy",32);
+    sp3.setAttribute("rx",5); sp3.setAttribute("ry",4);
     sp3.setAttribute("fill","#ff9a52");
     g.appendChild(sp3);
   }
 
-  // eyes
-  const eyeL = document.createElementNS(NS,"ellipse");
-  eyeL.setAttribute("cx",42); eyeL.setAttribute("cy",40);
-  eyeL.setAttribute("rx",2.6); eyeL.setAttribute("ry",3.6);
-  eyeL.setAttribute("fill","#2a2a2a");
-  eyeL.setAttribute("class","eye");
-  g.appendChild(eyeL);
-  const eyeR = document.createElementNS(NS,"ellipse");
-  eyeR.setAttribute("cx",58); eyeR.setAttribute("cy",40);
-  eyeR.setAttribute("rx",2.6); eyeR.setAttribute("ry",3.6);
-  eyeR.setAttribute("fill","#2a2a2a");
-  eyeR.setAttribute("class","eye r");
-  g.appendChild(eyeR);
-  // eye shine
-  const sh1 = document.createElementNS(NS,"circle");
-  sh1.setAttribute("cx",42.8); sh1.setAttribute("cy",38.8); sh1.setAttribute("r",0.9);
-  sh1.setAttribute("fill","#ffffff");
-  g.appendChild(sh1);
-  const sh2 = document.createElementNS(NS,"circle");
-  sh2.setAttribute("cx",58.8); sh2.setAttribute("cy",38.8); sh2.setAttribute("r",0.9);
-  sh2.setAttribute("fill","#ffffff");
-  g.appendChild(sh2);
+  // ONE eye (side view)
+  const eye = document.createElementNS(NS,"ellipse");
+  eye.setAttribute("cx",79); eye.setAttribute("cy",48);
+  eye.setAttribute("rx",2.2); eye.setAttribute("ry",3.2);
+  eye.setAttribute("fill","#2a2a2a");
+  eye.setAttribute("class","eye");
+  g.appendChild(eye);
+  const shine = document.createElementNS(NS,"circle");
+  shine.setAttribute("cx",79.8); shine.setAttribute("cy",47.2); shine.setAttribute("r",0.8);
+  shine.setAttribute("fill","#ffffff");
+  g.appendChild(shine);
 
   // nose
   const nose = document.createElementNS(NS,"path");
-  nose.setAttribute("d","M 48 46 L 52 46 L 50 49 Z");
+  nose.setAttribute("d","M 86 51 L 90 51 L 88 54 Z");
   nose.setAttribute("fill","#ff8fa9");
   g.appendChild(nose);
   // mouth
   const mouth = document.createElementNS(NS,"path");
-  mouth.setAttribute("d","M 50 49 Q 47 52 46 50 M 50 49 Q 53 52 54 50");
+  mouth.setAttribute("d","M 88 54 Q 85 57 84 55");
   mouth.setAttribute("stroke","#5a3d4f");
   mouth.setAttribute("stroke-width","0.9");
   mouth.setAttribute("fill","none");
   mouth.setAttribute("stroke-linecap","round");
   g.appendChild(mouth);
 
-  // whiskers
-  [-1,1].forEach(side=>{
-    for(let i=0;i<3;i++){
-      const w = document.createElementNS(NS,"line");
-      w.setAttribute("x1",50); w.setAttribute("y1",47);
-      w.setAttribute("x2",50+side*16);
-      w.setAttribute("y2",47+(i-1)*2*side);
-      w.setAttribute("stroke","#5a3d4f");
-      w.setAttribute("stroke-width","0.7");
-      w.setAttribute("opacity",".55");
-      g.appendChild(w);
-    }
-  });
+  // forward whiskers
+  for(let i=0;i<3;i++){
+    const w = document.createElementNS(NS,"line");
+    w.setAttribute("x1",86); w.setAttribute("y1",52);
+    w.setAttribute("x2",96); w.setAttribute("y2",50+i*2);
+    w.setAttribute("stroke","#5a3d4f");
+    w.setAttribute("stroke-width","0.6");
+    w.setAttribute("opacity",".5");
+    g.appendChild(w);
+  }
+  // back whiskers
+  for(let i=0;i<2;i++){
+    const w = document.createElementNS(NS,"line");
+    w.setAttribute("x1",72); w.setAttribute("y1",50);
+    w.setAttribute("x2",60); w.setAttribute("y2",48+i*2);
+    w.setAttribute("stroke","#5a3d4f");
+    w.setAttribute("stroke-width","0.5");
+    w.setAttribute("opacity",".35");
+    g.appendChild(w);
+  }
 
   // cheek blush
-  const blushL = document.createElementNS(NS,"ellipse");
-  blushL.setAttribute("cx",38); blushL.setAttribute("cy",46);
-  blushL.setAttribute("rx",3); blushL.setAttribute("ry",1.6);
-  blushL.setAttribute("fill","#ffb3c6");
-  blushL.setAttribute("opacity",".5");
-  g.appendChild(blushL);
-  const blushR = document.createElementNS(NS,"ellipse");
-  blushR.setAttribute("cx",62); blushR.setAttribute("cy",46);
-  blushR.setAttribute("rx",3); blushR.setAttribute("ry",1.6);
-  blushR.setAttribute("fill","#ffb3c6");
-  blushR.setAttribute("opacity",".5");
-  g.appendChild(blushR);
+  const blush = document.createElementNS(NS,"ellipse");
+  blush.setAttribute("cx",76); blush.setAttribute("cy",54);
+  blush.setAttribute("rx",2.5); blush.setAttribute("ry",1.4);
+  blush.setAttribute("fill","#ffb3c6");
+  blush.setAttribute("opacity",".5");
+  g.appendChild(blush);
 
   svg.appendChild(g);
   wrap.appendChild(svg);
