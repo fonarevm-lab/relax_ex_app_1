@@ -17,5 +17,16 @@ final_*.png
 after*.png
 before.png
 preview.png
+breath.png
+garden.png
+clouds.png
+horizon.png
+check_*.png
 .tmp_*/
 err*.log
+
+# Node
+node_modules/
+
+# Build output
+dist/

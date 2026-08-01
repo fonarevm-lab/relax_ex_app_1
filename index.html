@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#ffd6e0">
+<meta name="theme-color" content="#ff8fa9">
+<meta name="description" content="Награда за дыхательное упражнение: волшебный сад с цветами и котятами">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
 <title>Волшебный сад</title>
 <style>
   :root{
@@ -1059,6 +1063,17 @@ document.addEventListener("click", unlockAudio, {once:true});
    GO
 ============================================================ */
 init();
+
+/* ============================================================
+   PWA — register service worker
+============================================================ */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch((err) => {
+      console.warn("SW registration failed:", err);
+    });
+  });
+}
 </script>
 </body>
 </html>
