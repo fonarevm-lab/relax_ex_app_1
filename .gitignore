@@ -10,4 +10,12 @@ Thumbs.db
 *.log
 dom_*.html
 screenshot_*.png
+test_*.png
+step*.png
+s[0-9]*.png
+final_*.png
+after*.png
+before.png
+preview.png
+.tmp_*/
 err*.log

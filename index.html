@@ -38,9 +38,9 @@
   /* === Sky overlays === */
   .sky-layer{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,220,230,.6) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(255,230,200,.5) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(200,230,255,.35) 0%,transparent 60%);z-index:0;}
   /* === Background scenery (house + tree) === */
-  .house-wrap{position:absolute;bottom:3%;left:2%;width:38%;max-width:170px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));}
+  .house-wrap{position:absolute;bottom:6%;left:50%;transform:translateX(-50%);width:78%;max-width:340px;z-index:2;filter:drop-shadow(0 6px 10px rgba(80,60,80,.16));}
   .house-svg{display:block;width:100%;height:auto;}
-  .tree-wrap{position:absolute;bottom:3%;right:2%;width:32%;max-width:140px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;}
+  .tree-wrap{position:absolute;bottom:3%;right:2%;width:30%;max-width:130px;z-index:2.5;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;}
   .tree-svg{display:block;width:100%;height:auto;}
   @keyframes treeSway{0%,100%{transform:rotate(-1deg);}50%{transform:rotate(1.2deg);}}
   /* === Ground === */
@@ -90,14 +90,16 @@
   @keyframes prowl{0%,100%{transform:translateX(0);}50%{transform:translateX(24px);}}
   @keyframes yawn{0%,80%,100%{transform:scaleY(1);}88%{transform:scaleY(.9);}}
   @keyframes stretch{0%,100%{transform:scaleY(.92) scaleX(1.05);}50%{transform:scaleY(1.08) scaleX(.96);}}
+  @keyframes lick{0%,100%{transform:rotate(0) translateY(0);}30%{transform:rotate(-7deg) translateX(-2px) translateY(-2px);}60%{transform:rotate(-3deg) translateX(-1px) translateY(-3px);}}
   @keyframes blink{0%,92%,100%{transform:scaleY(1);}96%{transform:scaleY(.1);}}
-  .anim-wag{g{animation:wag 2s ease-in-out infinite;transform-origin:50% 100%;}}
-  .anim-breathe{g{animation:breathe 3s ease-in-out infinite;transform-origin:50% 100%;}}
-  .anim-wash{g{animation:wash 2.4s ease-in-out infinite;transform-origin:50% 100%;}}
-  .anim-bounce{g{animation:bounce 1.4s ease-in-out infinite;}}
-  .anim-prowl{g{animation:prowl 4.5s ease-in-out infinite;}}
+  .anim-wag g{animation:wag 2s ease-in-out infinite;transform-origin:50% 100%;}
+  .anim-breathe g{animation:breathe 3s ease-in-out infinite;transform-origin:50% 100%;}
+  .anim-wash g{animation:wash 2.4s ease-in-out infinite;transform-origin:50% 100%;}
+  .anim-bounce g{animation:bounce 1.4s ease-in-out infinite;}
+  .anim-prowl g{animation:prowl 4.5s ease-in-out infinite;}
   .anim-yawn g{animation:yawn 4s ease-in-out infinite;transform-origin:50% 100%;}
   .anim-stretch g{animation:stretch 3.5s ease-in-out infinite;transform-origin:50% 100%;}
+  .anim-lick g{animation:lick 2.8s ease-in-out infinite;transform-origin:50% 100%;}
   .eye{transform-origin:center;animation:blink 5s ease-in-out infinite;}
   .eye.r{animation-delay:.15s;}
 </style>
@@ -112,20 +114,24 @@
   <div class="ground"></div>
 
   <div class="house-wrap">
-    <svg class="house-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <svg class="house-svg" viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#fbe4cd"/>
-          <stop offset="100%" stop-color="#e8c5a3"/>
+        <linearGradient id="logGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#e8c599"/>
+          <stop offset="100%" stop-color="#c89968"/>
         </linearGradient>
         <linearGradient id="roofGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#e89270"/>
-          <stop offset="100%" stop-color="#b86344"/>
+          <stop offset="0%" stop-color="#c97050"/>
+          <stop offset="100%" stop-color="#8a4530"/>
         </linearGradient>
         <linearGradient id="windowGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#5a6a8a"/>
-          <stop offset="100%" stop-color="#3a4a6a"/>
+          <stop offset="0%" stop-color="#3a4a6a"/>
+          <stop offset="100%" stop-color="#1a2a4a"/>
         </linearGradient>
+        <radialGradient id="windowGlow" cx="50%" cy="60%">
+          <stop offset="0%" stop-color="#fff5b3" stop-opacity=".55"/>
+          <stop offset="100%" stop-color="#fff5b3" stop-opacity="0"/>
+        </radialGradient>
         <filter id="wc-bg" x="-5%" y="-5%" width="110%" height="110%">
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="9"/>
           <feDisplacementMap in="SourceGraphic" scale="3"/>
@@ -133,31 +139,66 @@
         </filter>
       </defs>
       <g filter="url(#wc-bg)">
-        <!-- walls -->
-        <rect x="32" y="100" width="136" height="92" fill="url(#wallGrad)"/>
-        <!-- roof -->
-        <polygon points="22,105 100,42 178,105" fill="url(#roofGrad)"/>
-        <!-- roof edge highlight -->
-        <line x1="22" y1="105" x2="178" y2="105" stroke="#8a4530" stroke-width="2" opacity=".5"/>
+        <!-- soft ground shadow under house -->
+        <ellipse cx="130" cy="210" rx="120" ry="4" fill="rgba(80,60,80,.22)"/>
+
+        <!-- roof (pitched) -->
+        <polygon points="20,108 130,40 240,108" fill="url(#roofGrad)"/>
+        <line x1="20" y1="108" x2="240" y2="108" stroke="#6a3520" stroke-width="2.5" opacity=".55"/>
+        <!-- roof shingle hints -->
+        <path d="M 40 102 L 70 80 M 60 110 L 100 80 M 100 108 L 140 78 M 140 110 L 180 80 M 180 108 L 220 84" stroke="#7a3a25" stroke-width="1" fill="none" opacity=".4"/>
+
+        <!-- walls (log cabin) -->
+        <rect x="30" y="105" width="200" height="100" fill="url(#logGrad)"/>
+        <!-- horizontal log lines -->
+        <g stroke="#8a5a3a" stroke-width="1.2" opacity=".5">
+          <line x1="30" y1="120" x2="230" y2="120"/>
+          <line x1="30" y1="135" x2="230" y2="135"/>
+          <line x1="30" y1="150" x2="230" y2="150"/>
+          <line x1="30" y1="165" x2="230" y2="165"/>
+          <line x1="30" y1="180" x2="230" y2="180"/>
+          <line x1="30" y1="195" x2="230" y2="195"/>
+        </g>
+        <!-- log end caps on left/right walls -->
+        <g fill="#a8754a" opacity=".55">
+          <circle cx="36" cy="127" r="2.5"/>
+          <circle cx="36" cy="142" r="2.5"/>
+          <circle cx="36" cy="157" r="2.5"/>
+          <circle cx="36" cy="172" r="2.5"/>
+          <circle cx="36" cy="187" r="2.5"/>
+          <circle cx="224" cy="127" r="2.5"/>
+          <circle cx="224" cy="142" r="2.5"/>
+          <circle cx="224" cy="157" r="2.5"/>
+          <circle cx="224" cy="172" r="2.5"/>
+          <circle cx="224" cy="187" r="2.5"/>
+        </g>
+        <!-- corner post -->
+        <rect x="28" y="100" width="6" height="108" fill="#9a6a4a" opacity=".7"/>
+        <rect x="226" y="100" width="6" height="108" fill="#9a6a4a" opacity=".7"/>
+
         <!-- chimney -->
-        <rect x="140" y="50" width="14" height="38" fill="#a85a3a"/>
-        <rect x="138" y="48" width="18" height="5" fill="#7a3a20"/>
-        <!-- door -->
-        <rect x="108" y="138" width="26" height="54" rx="2" fill="#7a4a2a"/>
-        <rect x="108" y="138" width="26" height="54" rx="2" fill="none" stroke="#5a3520" stroke-width="1.2"/>
-        <circle cx="129" cy="166" r="1.6" fill="#ffd966"/>
-        <!-- window (open, dark inside) -->
-        <rect x="50" y="120" width="36" height="34" fill="url(#windowGrad)"/>
-        <rect x="50" y="120" width="36" height="34" fill="none" stroke="#a88060" stroke-width="3"/>
-        <line x1="68" y1="120" x2="68" y2="154" stroke="#a88060" stroke-width="2.4"/>
-        <line x1="50" y1="137" x2="86" y2="137" stroke="#a88060" stroke-width="2.4"/>
+        <rect x="180" y="55" width="16" height="42" fill="#8a4a30"/>
+        <rect x="177" y="52" width="22" height="6" fill="#5a2a18"/>
+
+        <!-- big open window (only window, no door) -->
+        <!-- window frame (outer) -->
+        <rect x="86" y="120" width="88" height="62" fill="#7a4a2a"/>
+        <!-- window opening (dark inside) -->
+        <rect x="92" y="126" width="76" height="50" fill="url(#windowGrad)"/>
+        <!-- warm glow from inside -->
+        <ellipse cx="130" cy="160" rx="34" ry="14" fill="url(#windowGlow)"/>
+        <!-- cross frame -->
+        <line x1="130" y1="126" x2="130" y2="176" stroke="#a88060" stroke-width="3"/>
+        <line x1="92" y1="151" x2="168" y2="151" stroke="#a88060" stroke-width="3"/>
         <!-- window sill -->
-        <rect x="46" y="153" width="44" height="4" fill="#a88060"/>
-        <!-- small window near door -->
-        <rect x="92" y="120" width="12" height="14" fill="url(#windowGrad)"/>
-        <rect x="92" y="120" width="12" height="14" fill="none" stroke="#a88060" stroke-width="1.8"/>
-        <!-- ground shadow under house -->
-        <ellipse cx="100" cy="194" rx="78" ry="3" fill="rgba(80,60,80,.18)"/>
+        <rect x="80" y="180" width="100" height="6" fill="#6a3a20"/>
+        <!-- tiny curtains hint -->
+        <path d="M 92 126 Q 100 132 92 138 Z" fill="#ffb3c6" opacity=".55"/>
+        <path d="M 168 126 Q 160 132 168 138 Z" fill="#ffb3c6" opacity=".55"/>
+
+        <!-- little warm light dots suggesting lamp inside -->
+        <circle cx="115" cy="160" r="2" fill="#fff099" opacity=".75"/>
+        <circle cx="145" cy="160" r="2" fill="#fff099" opacity=".75"/>
       </g>
     </svg>
   </div>
@@ -249,7 +290,6 @@
 
   <div class="status">
     <p>🌸 Занятие <b id="s-count">0</b></p>
-    <p>🐱 Котят <b id="k-count">0</b></p>
     <p>💨 Вдохов <b id="b-count">0</b></p>
   </div>
 
@@ -267,10 +307,17 @@
 ============================================================ */
 const STORAGE_KEY = "magicGarden.v1";
 const COATS = ["orange","calico","siamese","tuxedo","gray_tabby"];
-const ACTIONS = ["wag","breathe","wash","bounce","prowl","yawn","stretch"];
+const ACTIONS = ["wag","breathe","wash","lick","bounce","prowl","yawn","stretch"];
 
 function defaultState(){
-  return { sessionCount:0, bushLevel:0, kittens:[], muted:false, lastAction:0 };
+  return {
+    bushLevel:0,
+    totalFlowers:0,
+    kittens:[],
+    sessionScores:{},   // {1:50, 2:100}
+    sessionKittens:{},  // {1:true, 2:true}
+    muted:false
+  };
 }
 function loadState(){
   try{
@@ -289,6 +336,11 @@ let state = loadState();
 const url = new URLSearchParams(window.location.search);
 const score = Math.max(0, Math.min(100, parseInt(url.get("score")||"0",10)));
 const breaths = Math.max(0, parseInt(url.get("breaths")||"0",10));
+const session = Math.max(1, parseInt(url.get("session")||"1",10));
+// ?reset=1 wipes saved progress (useful for tests / shared links)
+if(url.get("reset") === "1"){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch{}
+}
 
 /* ============================================================
    MUTE
@@ -419,22 +471,23 @@ function makeFlower(cx,cy,kind){
 }
 function placeFlowers(){
   flowersLayer.innerHTML = "";
-  if(score < 80) return;
-  const spots = [
+  const count = state.totalFlowers || 0;
+  if(count === 0) return;
+  const allSpots = [
     {x:120,y:48,k:"pink"},{x:72,y:72,k:"yellow"},{x:170,y:72,k:"purple"},
     {x:96,y:38,k:"cream"},{x:148,y:42,k:"pink"},{x:50,y:108,k:"yellow"},
     {x:192,y:108,k:"pink"},{x:120,y:90,k:"cream"},{x:82,y:128,k:"purple"},
     {x:160,y:128,k:"yellow"},{x:38,y:78,k:"pink"},{x:202,y:80,k:"purple"}
   ];
+  const spots = allSpots.slice(0, count);
   spots.forEach((p,i)=>{
     setTimeout(()=>{
       const f = makeFlower(p.x,p.y,p.k);
       flowersLayer.appendChild(f);
-      // Apply bloom immediately so headless/older browsers see flowers without relying on rAF
       const inner = f.querySelector(".flower");
       if(inner) inner.classList.add("bloom");
       if(i===0) chime();
-    }, i*180);
+    }, i*220);
   });
 }
 
@@ -740,7 +793,6 @@ function renderAllKittens(){
 }
 
 function addNewKittenDom(kitten){
-  // temporarily treat total as +1 for layout
   const total = state.kittens.length;
   const { wrap, svg, g } = makeKitten(kitten.coatColor, false);
   const leftPct = positionFor(total-1, total);
@@ -763,12 +815,26 @@ function addNewKittenDom(kitten){
     wrap.classList.add("in");
     wrap.style.transform = `translateX(-50%) translateY(0) scale(0.78)`;
   }, 100);
+  // re-balance existing kittens' positions to match the new total
+  repositionKittens();
   jingle();
 }
 
-function growFirstKitten(){
-  if(kittenRefs.length === 0) return;
-  const ref = kittenRefs[0];
+// re-distribute kittens along the bottom row based on current count
+function repositionKittens(){
+  const total = state.kittens.length;
+  state.kittens.forEach((k, i) => {
+    if(kittenRefs[i] && kittenRefs[i].wrap){
+      kittenRefs[i].wrap.style.left = positionFor(i, total) + "%";
+    }
+  });
+}
+
+function growNewestKitten(){
+  if(kittenRefs.length < 2) return;
+  // age up the kitten that was newest before this session's new one
+  // = kittenRefs[kittenRefs.length - 2]
+  const ref = kittenRefs[kittenRefs.length - 2];
   ref.kitten.ageStage = "cat";
   ref.wrap.classList.add("adult","grow");
   ref.wrap.style.transform = `translateX(-50%) translateY(0) scale(1)`;
@@ -878,44 +944,63 @@ function celebrate(text){
    STATUS
 ============================================================ */
 function updateStatus(){
-  document.getElementById("s-count").textContent = state.sessionCount;
-  document.getElementById("k-count").textContent = state.kittens.length;
+  document.getElementById("s-count").textContent = session;
   document.getElementById("b-count").textContent = breaths;
 }
 
 /* ============================================================
    REWARD FLOW
 ============================================================ */
+// 0..49  → 0 flowers, no kitten
+// 50..99 → 1 flower,  no kitten
+// 100    → 2 flowers, +new kitten, previous kitten grows
+function flowersForScore(s){
+  if(s >= 100) return 2;
+  if(s >= 50)  return 1;
+  return 0;
+}
+
 function runReward(){
-  // 1. compute bush growth (proportional to score, capped at 1)
+  // 1. bush growth (proportional to score)
   const growth = (score/100) * 0.45;
   state.bushLevel = Math.min(1, state.bushLevel + growth);
-  // 2. session counter
-  state.sessionCount += 1;
-  // 3. kitten logic
-  if(score > 0){
+
+  // 2. flowers for this session (additive when score improves)
+  const wantFlowers = flowersForScore(score);
+  const hadFlowers  = flowersForScore(state.sessionScores[session] || 0);
+  const addedFlowers = Math.max(0, wantFlowers - hadFlowers);
+  state.totalFlowers = (state.totalFlowers || 0) + addedFlowers;
+  state.sessionScores[session] = score;
+
+  // 3. kitten — only at score=100 and when this session is new
+  let addedKitten = false;
+  if(score === 100 && !state.sessionKittens[session]){
+    state.sessionKittens[session] = true;
+    // age up the previously newest kitten
+    if(state.kittens.length > 0){
+      state.kittens[state.kittens.length - 1].ageStage = "cat";
+    }
     const coat = COATS[(Math.random()*COATS.length)|0];
     const action = ACTIONS[(Math.random()*ACTIONS.length)|0];
     state.kittens.push({ id: Date.now()+Math.random(), ageStage:"kitten", coatColor: coat, action });
+    addedKitten = true;
   }
-  // 4. age up oldest kitten on session 2+
-  let grew = false;
-  if(state.sessionCount >= 2 && state.kittens.length >= 2){
-    state.kittens[0].ageStage = "cat";
-    grew = true;
-  }
+
   saveState();
   updateStatus();
 
   // Animate bush
   renderBush();
 
-  // Flowers (>=80)
-  if(score >= 80){
+  // Flowers + purr (only if there are flowers to show)
+  if(state.totalFlowers > 0){
     setTimeout(()=>{ placeFlowers(); purr(); }, 900);
-    setTimeout(()=>{ spawnConfetti(110); celebrate("✨ Отлично! ✨"); }, 400);
+  }
+  // Confetti + celebration text
+  if(score >= 100){
+    setTimeout(()=>{ spawnConfetti(100); celebrate("✨ Отлично! ✨"); }, 400);
   } else if(score >= 50){
-    setTimeout(()=>celebrate("🌱 Молодец!"), 400);
+    setTimeout(()=>celebrate("🌸 Молодец!"), 400);
   } else {
     setTimeout(()=>celebrate("🌿 Хорошо!"), 400);
   }
@@ -924,11 +1009,11 @@ function runReward(){
   for(let i=0;i<6;i++) setTimeout(spawnSparkle, 700 + i*200);
 
   // Kitten add + grow
-  if(score > 0){
+  if(addedKitten){
     setTimeout(()=> addNewKittenDom(state.kittens[state.kittens.length-1]), 1300);
   }
-  if(grew){
-    setTimeout(growFirstKitten, 2000);
+  if(score === 100 && state.kittens.length >= 2){
+    setTimeout(growNewestKitten, 2000);
   }
 }
 
