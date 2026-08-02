@@ -110,6 +110,38 @@
   .anim-lick g{animation:lick 2.8s ease-in-out infinite;transform-origin:50% 100%;}
   .eye{transform-origin:center;animation:blink 5s ease-in-out infinite;}
   .eye.r{animation-delay:.15s;}
+  /* === Magic particles === */
+  .magic-puff{position:fixed;border-radius:50%;pointer-events:none;z-index:11;box-shadow:0 0 8px currentColor;}
+  .magic-star{position:fixed;pointer-events:none;z-index:11;color:#ffd966;filter:drop-shadow(0 0 4px rgba(255,220,100,.7));}
+  @keyframes magicPuff{
+    0%  { transform:translate(0,0) scale(1); opacity:1; }
+    70% { opacity:.9; }
+    100%{ transform:translate(var(--dx),var(--dy)) scale(.2); opacity:0; }
+  }
+  @keyframes magicFloat{
+    0%  { transform:translateY(0) rotate(0); opacity:.9; }
+    100%{ transform:translateY(-30px) rotate(180deg); opacity:0; }
+  }
+  /* === Rainbow halo on bush === */
+  .bush-halo{position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;opacity:0;z-index:2;background:radial-gradient(circle,rgba(255,180,200,.6) 0%,rgba(255,220,150,.4) 30%,rgba(180,200,255,.3) 60%,transparent 75%);filter:blur(8px);transition:opacity .8s ease-out;}
+  .bush-halo.on{opacity:1;animation:haloPulse 2.2s ease-in-out infinite;}
+  @keyframes haloPulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.15);}}
+  /* === Falling star === */
+  @keyframes fallingStar{
+    0%  { transform:translate(0,-30vh) scale(.5) rotate(0); opacity:0; }
+    15% { opacity:1; }
+    80% { opacity:1; }
+    100%{ transform:translate(var(--tx),100vh) scale(1) rotate(720deg); opacity:0; }
+  }
+  .falling-star{position:fixed;top:0;left:0;font-size:42px;pointer-events:none;z-index:11;filter:drop-shadow(0 0 12px rgba(255,220,120,.9));}
+  /* === Glow around kittens === */
+  .glow{position:absolute;left:50%;bottom:-10px;width:130%;height:60%;transform:translateX(-50%);border-radius:50%;pointer-events:none;opacity:0;z-index:-1;background:radial-gradient(ellipse at center,rgba(255,220,150,.7) 0%,rgba(255,180,200,.3) 40%,transparent 70%);filter:blur(6px);transition:opacity .6s;}
+  .glow.on{opacity:1;animation:glowPulse 1.6s ease-in-out infinite;}
+  @keyframes glowPulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1);}50%{opacity:1;transform:translateX(-50%) scale(1.15);}}
+  /* === Multi-line celebration text === */
+  .celebrate-line{position:absolute;left:50%;font-weight:700;color:var(--text);text-shadow:0 2px 8px rgba(255,255,255,.85);z-index:12;pointer-events:none;text-align:center;white-space:nowrap;opacity:0;animation:pop 3s ease-out forwards;}
+  .celebrate-line.main{font-size:30px;top:24%;}
+  .celebrate-line.sub {font-size:18px;top:32%;color:#c87a8a;animation-delay:.4s;}
 </style>
 </head>
 <body>
@@ -246,6 +278,7 @@
   </div>
 
   <div class="bush-wrap" id="bush-wrap">
+    <div class="bush-halo" id="bush-halo"></div>
     <svg class="bush-svg" id="bush" viewBox="0 0 240 220" width="240" height="220">
       <defs>
         <radialGradient id="bushGrad" cx="50%" cy="38%">
@@ -495,6 +528,15 @@ function placeFlowers(){
       const inner = f.querySelector(".flower");
       if(inner) inner.classList.add("bloom");
       if(i===0) chime();
+      // Magic puff from flower position
+      requestAnimationFrame(()=>{
+        const rect = f.getBoundingClientRect();
+        if(rect.width){
+          const cx = rect.left + rect.width/2;
+          const cy = rect.top + rect.height/2;
+          spawnMagicPuff(cx, cy, { count: 10, size: 6, distance: 40, colors: PUFF_COLORS_BLOOM });
+        }
+      });
     }, i*220);
   });
 }
@@ -818,10 +860,20 @@ function addNewKittenDom(kitten){
     wrap.classList.add("anim-"+next);
     meow();
   });
+  // Falling star before arrival
+  spawnFallingStar();
+  // Magic puff where the kitten will land
+  setTimeout(()=>{
+    const r = wrap.getBoundingClientRect();
+    const cx = r.left + r.width/2;
+    const cy = window.innerHeight - 30; // near bottom
+    spawnMagicPuff(cx, cy, { count: 14, size: 7, distance: 70, colors: PUFF_COLORS_KITTEN, emojis:["✨","⭐","💫"] });
+  }, 100);
   // animate
   setTimeout(()=>{
     wrap.classList.add("in");
     wrap.style.transform = `translateX(-50%) translateY(0) scale(0.78)`;
+    showKittenGlow(wrap, 2200);
   }, 100);
   // re-balance existing kittens' positions to match the new total
   repositionKittens();
@@ -840,13 +892,17 @@ function repositionKittens(){
 
 function growNewestKitten(){
   if(kittenRefs.length < 2) return;
-  // age up the kitten that was newest before this session's new one
-  // = kittenRefs[kittenRefs.length - 2]
   const ref = kittenRefs[kittenRefs.length - 2];
   ref.kitten.ageStage = "cat";
   ref.wrap.classList.add("adult","grow");
   ref.wrap.style.transform = `translateX(-50%) translateY(0) scale(1)`;
   setTimeout(()=>ref.wrap.classList.remove("grow"), 1800);
+  // Glow + big magic burst at kitten position
+  const r = ref.wrap.getBoundingClientRect();
+  const cx = r.left + r.width/2;
+  const cy = r.top  + r.height/2;
+  spawnMagicPuff(cx, cy, { count: 18, size: 8, distance: 90, colors: PUFF_COLORS_GROW, emojis:["✨","⭐","🌟","💫"] });
+  showKittenGlow(ref.wrap, 2600);
 }
 
 /* ============================================================
@@ -925,6 +981,57 @@ function stepConfetti(){
 /* ============================================================
    SPARKLES
 ============================================================ */
+const PUFF_COLORS_BLOOM  = ["#ff8fa9","#ffd966","#c89bff","#fff5e1","#a8e0a0","#ffb3c6"];
+const PUFF_COLORS_GROW   = ["#ffd966","#fff099","#ff8fa9","#c89bff","#a8e0a0"];
+const PUFF_COLORS_KITTEN = ["#fff5e1","#ffd966","#ffb3c6","#a8e0a0","#9ad7ff"];
+
+function spawnMagicPuff(x, y, opts={}){
+  const count   = opts.count   ?? 10;
+  const size    = opts.size    ?? 6;
+  const dist    = opts.distance ?? 50;
+  const colors  = opts.colors  ?? PUFF_COLORS_BLOOM;
+  const dur     = opts.duration ?? 1100;
+  const emojis  = opts.emojis  ?? null;
+  for(let i=0; i<count; i++){
+    const angle = (i/count) * Math.PI * 2 + Math.random()*0.4;
+    const dx = Math.cos(angle) * (dist * (0.7 + Math.random()*0.6));
+    const dy = Math.sin(angle) * (dist * (0.7 + Math.random()*0.6));
+    const p = document.createElement("div");
+    if(emojis && Math.random() < 0.5){
+      p.className = "magic-star";
+      p.textContent = emojis[(Math.random()*emojis.length)|0];
+      p.style.fontSize = (12 + Math.random()*10) + "px";
+    } else {
+      p.className = "magic-puff";
+      const c = colors[(Math.random()*colors.length)|0];
+      p.style.background = c;
+      p.style.color = c;
+      p.style.width  = (size * (0.6 + Math.random()*0.8)) + "px";
+      p.style.height = p.style.width;
+    }
+    p.style.left = x + "px";
+    p.style.top  = y + "px";
+    p.style.setProperty("--dx", dx + "px");
+    p.style.setProperty("--dy", dy + "px");
+    p.style.animation = `magicPuff ${dur}ms cubic-bezier(.2,.7,.4,1) forwards`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(), dur + 100);
+  }
+}
+
+function spawnFallingStar(){
+  const fs = document.createElement("div");
+  fs.className = "falling-star";
+  fs.textContent = ["⭐","🌟","✨"][(Math.random()*3)|0];
+  const startX = (10 + Math.random()*80) + "vw";
+  const tx = (Math.random()*40 - 20) + "vw";
+  fs.style.left = startX;
+  fs.style.setProperty("--tx", tx);
+  fs.style.animation = "fallingStar 1.4s cubic-bezier(.5,0,.7,1) forwards";
+  document.body.appendChild(fs);
+  setTimeout(()=>fs.remove(), 1600);
+}
+
 function spawnSparkle(){
   const s = document.createElement("div");
   s.className = "sparkle";
@@ -937,15 +1044,60 @@ function spawnSparkle(){
   setTimeout(()=>s.remove(), 5500);
 }
 
+/* === Halo on bush === */
+const bushHalo = document.getElementById("bush-halo");
+function showBushHalo(duration=2200){
+  bushHalo.classList.add("on");
+  setTimeout(()=>bushHalo.classList.remove("on"), duration);
+}
+function pulseBushHalo(){
+  bushHalo.classList.add("on");
+  // stays on while score==100
+}
+
+/* === Glow under a kitten (transient) === */
+function showKittenGlow(wrap, duration=1800){
+  const glow = document.createElement("div");
+  glow.className = "glow on";
+  wrap.appendChild(glow);
+  setTimeout(()=>{ glow.classList.remove("on"); setTimeout(()=>glow.remove(), 600); }, duration);
+}
+
 /* ============================================================
-   CELEBRATION TEXT
+   CELEBRATION TEXT — multi-line, fading
 ============================================================ */
-function celebrate(text){
-  const c = document.createElement("div");
-  c.className = "celebrate";
-  c.textContent = text;
-  document.getElementById("app").appendChild(c);
-  setTimeout(()=>c.remove(), 2900);
+const PRAISES = {
+  100: [
+    { main:"✨ Отлично! ✨",          sub:"Сад расцветает!" },
+    { main:"🌸 Браво! 🌸",            sub:"Ты волшебница!" },
+    { main:"⭐ Умница! ⭐",            sub:"Котёнок подрастает!" },
+    { main:"💫 Молодец! 💫",          sub:"Каждый день — чудо!" },
+    { main:"🌟 Супер! 🌟",            sub:"Садик стал ещё краше!" }
+  ],
+  50: [
+    { main:"🌱 Хорошо!",              sub:"Ещё чуть-чуть!" },
+    { main:"🌼 Молодец!",             sub:"Цветок распустился!" }
+  ],
+  0: [
+    { main:"🌿 Готово!",              sub:"Завтра будет ещё лучше" }
+  ]
+};
+function celebrate(){
+  const tier = score >= 100 ? 100 : score >= 50 ? 50 : 0;
+  const list = PRAISES[tier] || PRAISES[0];
+  const pick = list[(Math.random()*list.length)|0];
+  const main = document.createElement("div");
+  main.className = "celebrate-line main";
+  main.textContent = pick.main;
+  document.getElementById("app").appendChild(main);
+  setTimeout(()=>main.remove(), 3100);
+  if(pick.sub){
+    const sub = document.createElement("div");
+    sub.className = "celebrate-line sub";
+    sub.textContent = pick.sub;
+    document.getElementById("app").appendChild(sub);
+    setTimeout(()=>sub.remove(), 3500);
+  }
 }
 
 /* ============================================================
@@ -1004,21 +1156,27 @@ function runReward(){
   if(state.totalFlowers > 0){
     setTimeout(()=>{ placeFlowers(); purr(); }, 900);
   }
-  // Confetti + celebration text
+  // Rainbow halo on bush when excellent
   if(score >= 100){
-    setTimeout(()=>{ spawnConfetti(100); celebrate("✨ Отлично! ✨"); }, 400);
+    setTimeout(()=>{ pulseBushHalo(); }, 300);
+  }
+  // Confetti + celebration text (multi-line fading)
+  if(score >= 100){
+    setTimeout(()=>{ spawnConfetti(120); celebrate(); }, 400);
   } else if(score >= 50){
-    setTimeout(()=>celebrate("🌸 Молодец!"), 400);
+    setTimeout(()=>celebrate(), 400);
   } else {
-    setTimeout(()=>celebrate("🌿 Хорошо!"), 400);
+    setTimeout(()=>celebrate(), 400);
   }
 
   // Sparkles
   for(let i=0;i<6;i++) setTimeout(spawnSparkle, 700 + i*200);
 
-  // Kitten add + grow
+  // Kitten add + grow with magic
   if(addedKitten){
-    setTimeout(()=> addNewKittenDom(state.kittens[state.kittens.length-1]), 1300);
+    setTimeout(()=>{
+      addNewKittenDom(state.kittens[state.kittens.length-1]);
+    }, 1300);
   }
   if(score === 100 && state.kittens.length >= 2){
     setTimeout(growNewestKitten, 2000);
