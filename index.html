@@ -46,28 +46,72 @@
   /* === Sky overlays === */
   .sky-layer{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,220,230,.6) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(255,230,200,.5) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(200,230,255,.35) 0%,transparent 60%);z-index:0;}
   /* === Background scenery (house on horizon + tree) === */
-  .house-wrap{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);width:70%;max-width:300px;z-index:2;filter:drop-shadow(0 6px 10px rgba(80,60,80,.16));opacity:.92;}
+  .house-wrap{position:absolute;bottom:32%;left:50%;transform:translateX(-50%);width:78%;max-width:340px;z-index:3;filter:drop-shadow(0 6px 10px rgba(80,60,80,.16));opacity:.95;}
   .house-svg{display:block;width:100%;height:auto;}
-  .tree-wrap{position:absolute;bottom:3%;right:2%;width:30%;max-width:130px;z-index:2.5;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;}
+  .chim-smoke{position:absolute;top:-6px;left:64%;width:14px;height:18px;pointer-events:none;z-index:4;}
+  .chim-smoke circle{fill:rgba(255,255,255,.85);filter:blur(1.2px);animation:smokeRise 3.2s ease-in-out infinite;opacity:0;}
+  .chim-smoke circle:nth-child(1){animation-delay:0s;}
+  .chim-smoke circle:nth-child(2){animation-delay:1.05s;}
+  .chim-smoke circle:nth-child(3){animation-delay:2.1s;}
+  @keyframes smokeRise{
+    0%  { transform:translate(0,4px) scale(.5); opacity:0; }
+    15% { opacity:.85; }
+    70% { opacity:.7; }
+    100%{ transform:translate(-5px,-22px) scale(1.3); opacity:0; }
+  }
+  .tree-wrap{position:absolute;bottom:3%;right:2%;width:30%;max-width:130px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;}
   .tree-svg{display:block;width:100%;height:auto;}
   @keyframes treeSway{0%,100%{transform:rotate(-1deg);}50%{transform:rotate(1.2deg);}}
   /* === Ground === */
   .ground{position:absolute;bottom:0;left:0;right:0;height:32%;background:linear-gradient(180deg,var(--grass) 0%,var(--grass-d) 100%);border-top-left-radius:50% 25%;border-top-right-radius:50% 25%;box-shadow:inset 0 4px 0 rgba(255,255,255,.2);z-index:2;}
   .ground::before{content:"";position:absolute;top:-6px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 10% 50%,var(--grass) 0%,transparent 50%),radial-gradient(ellipse at 30% 50%,var(--grass-l) 0%,transparent 60%),radial-gradient(ellipse at 55% 50%,var(--grass) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,var(--grass-l) 0%,transparent 60%),radial-gradient(ellipse at 95% 50%,var(--grass) 0%,transparent 50%);background-size:60px 14px;background-repeat:repeat-x;}
-  /* === Bush === */
-  .bush-wrap{position:absolute;bottom:24%;left:50%;transform:translateX(-50%) scale(0.4);transform-origin:bottom center;transition:transform 2.2s cubic-bezier(.34,1.56,.64,1);z-index:3;filter:drop-shadow(0 10px 14px rgba(80,60,80,.18));}
-  .bush-svg{display:block;}
+  /* === Bushes (multiple, fixed size, off-center) === */
+  .bushes-layer{position:absolute;inset:0;pointer-events:none;z-index:3;}
+  .bush-wrap{position:absolute;bottom:18%;transform:translateX(-50%) scale(.75);transform-origin:bottom center;opacity:0;filter:drop-shadow(0 8px 12px rgba(80,60,80,.18));transition:transform 1.4s cubic-bezier(.34,1.56,.64,1),opacity .9s ease-out;z-index:3;}
+  .bush-wrap.in{opacity:1;}
+  .bush-wrap.size-S{transform:translateX(-50%) scale(.55);}
+  .bush-wrap.size-M{transform:translateX(-50%) scale(.75);}
+  .bush-wrap.size-L{transform:translateX(-50%) scale(.92);}
+  .bush-wrap.behind{z-index:2;opacity:.7;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));}
+  .bush-wrap.behind.in{opacity:.7;}
+  .bush-svg{display:block;position:relative;}
+  .bush-halo{position:absolute;left:50%;top:48%;width:120%;height:120%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;opacity:0;z-index:2;background:radial-gradient(circle,rgba(255,180,200,.6) 0%,rgba(255,220,150,.4) 30%,rgba(180,200,255,.3) 60%,transparent 75%);filter:blur(8px);transition:opacity .8s ease-out;}
+  .bush-halo.on{opacity:1;animation:haloPulse 2.2s ease-in-out infinite;}
+  @keyframes haloPulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.15);}}
+  /* === Ground decor (rocks, mushrooms, grass) — children use position:absolute relative to #app === */
+  .ground-decor{position:absolute;inset:0;z-index:2;pointer-events:none;}
+  .rock{position:absolute;width:24px;height:14px;background:#a89c8e;border-radius:50% 50% 45% 45%;border:1.5px solid #6a605a;z-index:2;}
+  .rock.big{width:38px;height:22px;background:#b8ad9e;border-width:2px;}
+  .mushroom{position:absolute;width:20px;height:24px;z-index:2;}
+  .mushroom .stem{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:5px;height:12px;background:linear-gradient(180deg,#fff5e1,#e8d8b8);border-radius:2px;}
+  .mushroom .cap{position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:14px;background:linear-gradient(180deg,#ff8090,#d9455a);border-radius:50% 50% 45% 45%;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15);}
+  .mushroom .cap::after{content:"";position:absolute;width:3px;height:3px;background:#fff5e1;border-radius:50%;top:4px;left:3px;box-shadow:8px 2px 0 #fff5e1,-2px 7px 0 #fff5e1,4px 9px 0 #fff5e1;}
+  .grass-tuft{position:absolute;width:14px;height:16px;opacity:.85;z-index:2;}
+  .grass-tuft::before,.grass-tuft::after{content:"";position:absolute;bottom:0;width:2.5px;background:linear-gradient(180deg,#7ec074,#3a8a3a);border-radius:2px 2px 0 0;transform-origin:bottom center;}
+  .grass-tuft::before{left:2px;height:13px;transform:rotate(-14deg);}
+  .grass-tuft::after{right:2px;height:15px;transform:rotate(10deg);}
+  .grass-tuft::before{box-shadow:4px 2px 0 -0.5px #5fa858;}
   /* === Flowers === */
   .flower{opacity:0;transform:scale(0);transform-origin:center;transition:all .8s cubic-bezier(.34,1.56,.64,1);}
   .flower.bloom{opacity:1;transform:scale(1);}
   /* === Kittens === */
-  .kittens-row{position:absolute;bottom:6%;left:0;right:0;height:30%;z-index:4;pointer-events:none;}
-  .kitten{position:absolute;bottom:0;opacity:0;transform:translateY(40px) scale(.2);transition:transform 1.4s cubic-bezier(.34,1.56,.64,1),opacity 1.2s;cursor:pointer;pointer-events:auto;will-change:transform;}
-  .kitten.in{opacity:1;transform:translateY(0) scale(.75);}
-  .kitten.adult.in{transform:translateY(0) scale(1);}
+  .kittens-row{position:absolute;bottom:6%;left:0;right:0;height:30%;z-index:6;pointer-events:none;}
+  .kitten{position:absolute;bottom:0;opacity:0;cursor:pointer;pointer-events:auto;will-change:transform;z-index:6;}
+  .kitten.in{opacity:1;}
   .kitten.grow{transition:transform 1.8s cubic-bezier(.34,1.56,.64,1);}
   .kitten:hover,.kitten:active{filter:drop-shadow(0 0 12px rgba(255,220,120,.7)) brightness(1.05);}
   .kitten .tail{transform-origin:30% 100%;}
+  /* === Speech bubble (tap a kitten) === */
+  .speech{position:absolute;left:50%;bottom:88%;transform:translateX(-50%) translateY(8px) scale(.6);background:rgba(255,255,255,.96);border:2px solid #7a5a6a;border-radius:16px;padding:5px 11px;font-size:13px;font-weight:700;color:#5a3d4f;white-space:nowrap;box-shadow:0 3px 8px rgba(80,60,80,.2);pointer-events:none;opacity:0;animation:speechPop 1.7s cubic-bezier(.34,1.56,.64,1) forwards;z-index:25;letter-spacing:.2px;}
+  .speech::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%) rotate(180deg);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid rgba(255,255,255,.96);}
+  .speech::before{content:"";position:absolute;left:50%;bottom:-10px;transform:translateX(-50%) rotate(180deg);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:8px solid #7a5a6a;}
+  @keyframes speechPop{
+    0%   { opacity:0; transform:translateX(-50%) translateY(14px) scale(.4); }
+    14%  { opacity:1; transform:translateX(-50%) translateY(0)    scale(1.08); }
+    24%  { opacity:1; transform:translateX(-50%) translateY(0)    scale(1); }
+    78%  { opacity:1; transform:translateX(-50%) translateY(-2px) scale(1); }
+    100% { opacity:0; transform:translateX(-50%) translateY(-14px) scale(.92); }
+  }
   /* === Confetti canvas === */
   #confetti{position:absolute;inset:0;pointer-events:none;z-index:9;}
   /* === Mute button === */
@@ -79,7 +123,7 @@
   .status p{margin:0;display:flex;align-items:center;gap:6px;}
   .status b{color:var(--bush-d);font-weight:700;margin-left:auto;}
   /* === Reset button === */
-  .reset-btn{bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:7px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:11.5px;color:var(--text);opacity:.5;letter-spacing:.2px;}
+  .reset-btn{bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:7px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:11.5px;color:var(--text);opacity:.5;letter-spacing:.2px;z-index:4;}
   .reset-btn:hover,.reset-btn:active{opacity:.95;}
   /* === Title === */
   .title{position:absolute;top:max(80px,calc(env(safe-area-inset-top) + 70px));left:50%;transform:translateX(-50%);font-size:18px;font-weight:700;color:var(--text);text-shadow:0 1px 0 rgba(255,255,255,.6);z-index:12;text-align:center;letter-spacing:.3px;opacity:0;transition:opacity .8s;}
@@ -122,10 +166,7 @@
     0%  { transform:translateY(0) rotate(0); opacity:.9; }
     100%{ transform:translateY(-30px) rotate(180deg); opacity:0; }
   }
-  /* === Rainbow halo on bush === */
-  .bush-halo{position:absolute;left:50%;top:50%;width:120%;height:120%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;opacity:0;z-index:2;background:radial-gradient(circle,rgba(255,180,200,.6) 0%,rgba(255,220,150,.4) 30%,rgba(180,200,255,.3) 60%,transparent 75%);filter:blur(8px);transition:opacity .8s ease-out;}
-  .bush-halo.on{opacity:1;animation:haloPulse 2.2s ease-in-out infinite;}
-  @keyframes haloPulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.15);}}
+  /* === Rainbow halo on bush — handled by per-bush .bush-halo (defined earlier) === */
   /* === Falling star === */
   @keyframes fallingStar{
     0%  { transform:translate(0,-30vh) scale(.5) rotate(0); opacity:0; }
@@ -241,6 +282,12 @@
         <circle cx="145" cy="160" r="2" fill="#fff099" opacity=".75"/>
       </g>
     </svg>
+    <!-- Chimney smoke puffs -->
+    <div class="chim-smoke" aria-hidden="true">
+      <circle cx="7" cy="14" r="3.5"/>
+      <circle cx="7" cy="14" r="3"/>
+      <circle cx="7" cy="14" r="2.5"/>
+    </div>
   </div>
 
   <div class="tree-wrap">
@@ -277,9 +324,9 @@
     </svg>
   </div>
 
-  <div class="bush-wrap" id="bush-wrap">
-    <div class="bush-halo" id="bush-halo"></div>
-    <svg class="bush-svg" id="bush" viewBox="0 0 240 220" width="240" height="220">
+  <div class="bushes-layer" id="bushes-layer">
+    <!-- shared bush SVG defs (referenced by every bush) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
       <defs>
         <radialGradient id="bushGrad" cx="50%" cy="38%">
           <stop offset="0%" stop-color="#b8e8b0"/>
@@ -303,27 +350,10 @@
           <feGaussianBlur stdDeviation="4"/>
         </filter>
       </defs>
-      <ellipse cx="120" cy="212" rx="92" ry="9" fill="rgba(80,60,80,.22)" filter="url(#softShadow)"/>
-      <g filter="url(#watercolor)">
-        <ellipse cx="120" cy="125" rx="105" ry="92" fill="url(#bushGrad)"/>
-        <circle cx="58" cy="105" r="56" fill="url(#bushGrad)"/>
-        <circle cx="182" cy="105" r="56" fill="url(#bushGrad)"/>
-        <circle cx="120" cy="60" r="58" fill="url(#bushGrad)"/>
-        <circle cx="88" cy="80" r="46" fill="url(#bushGrad)"/>
-        <circle cx="152" cy="80" r="46" fill="url(#bushGrad)"/>
-        <circle cx="120" cy="115" r="52" fill="url(#bushGrad)"/>
-      </g>
-      <g opacity=".75">
-        <ellipse cx="60" cy="68" rx="22" ry="13" fill="url(#leafHi)"/>
-        <ellipse cx="180" cy="68" rx="22" ry="13" fill="url(#leafHi)"/>
-        <ellipse cx="120" cy="35" rx="24" ry="14" fill="url(#leafHi)"/>
-        <ellipse cx="38" cy="130" rx="18" ry="11" fill="url(#leafSh)"/>
-        <ellipse cx="200" cy="130" rx="18" ry="11" fill="url(#leafSh)"/>
-        <ellipse cx="120" cy="180" rx="20" ry="10" fill="url(#leafSh)"/>
-      </g>
-      <g id="flowers-layer"></g>
     </svg>
   </div>
+
+  <div class="ground-decor" id="ground-decor"></div>
 
   <div class="kittens-row" id="kittens-row"></div>
 
@@ -346,25 +376,118 @@
 /* ============================================================
    STATE
 ============================================================ */
-const STORAGE_KEY = "magicGarden.v1";
+const STORAGE_KEY = "magicGarden.v2";
 const COATS = ["orange","calico","siamese","tuxedo","gray_tabby"];
 const ACTIONS = ["wag","breathe","wash","lick","bounce","prowl","yawn","stretch"];
 
+/* Phrases a kitten can say when tapped (toddler-friendly Russian) */
+const KITTEN_SAY = [
+  "Мяу! 🐾",
+  "Мурр~ 💕",
+  "Поиграем? ✨",
+  "Мурлык! 😺",
+  "Люблю тебя! 💖",
+  "*мурчит*",
+  "Я тут! 🌸",
+  "Погладь меня 🥰",
+  "Хочу рыбку 🐟",
+  "Чмок! 💋"
+];
+
+/* === Bush grid (fixed nests; never stack on top of the house) ===
+   Each bush has {id, x(%), size, behind, flowers[], maxFlowers}.
+   - "behind" = small bush sitting on the horizon, behind the house (depth).
+   - Flowers are placed on the bush at predefined spots, no overlap. */
+const BUSH_NESTS = [
+  // Front-row nests (main bush, visible, never under the house center 40-60%)
+  { id:"b1",  x:18, size:"M", behind:false, maxFlowers:6 },
+  { id:"b2",  x:82, size:"M", behind:false, maxFlowers:6 },
+  { id:"b3",  x:8,  size:"S", behind:false, maxFlowers:4 },
+  { id:"b4",  x:92, size:"S", behind:false, maxFlowers:4 },
+  { id:"b5",  x:33, size:"S", behind:false, maxFlowers:4 },
+  { id:"b6",  x:67, size:"S", behind:false, maxFlowers:4 },
+  // Background row (small, between/before house, lower z, less opacity)
+  { id:"bh1", x:42, size:"S", behind:true,  maxFlowers:3 },
+  { id:"bh2", x:58, size:"S", behind:true,  maxFlowers:3 },
+];
+
+/* Spots inside one bush (in SVG units, viewBox 240x220) for flower placement */
+const SPOTS_BY_SIZE = {
+  S: [ // up to 4
+    {x:120,y:60,k:"pink"},
+    {x:84, y:80,k:"yellow"},
+    {x:156,y:80,k:"purple"},
+    {x:120,y:108,k:"cream"},
+  ],
+  M: [ // up to 6
+    {x:120,y:48,k:"pink"},
+    {x:72, y:72,k:"yellow"},
+    {x:170,y:72,k:"purple"},
+    {x:96, y:38,k:"cream"},
+    {x:148,y:42,k:"pink"},
+    {x:120,y:95,k:"yellow"},
+  ],
+  L: [ // up to 8
+    {x:120,y:42,k:"pink"},
+    {x:72, y:66,k:"yellow"},
+    {x:170,y:66,k:"purple"},
+    {x:96, y:36,k:"cream"},
+    {x:148,y:40,k:"pink"},
+    {x:50, y:100,k:"yellow"},
+    {x:192,y:100,k:"pink"},
+    {x:120,y:90,k:"purple"},
+  ],
+};
+
 function defaultState(){
   return {
-    bushLevel:0,
+    bushes:[
+      {id:"b1", size:"M", flowers:[]},     // one starter bush (empty) — first flower will bloom on score>=50
+    ],
     totalFlowers:0,
     kittens:[],
     sessionScores:{},   // {1:50, 2:100}
     sessionKittens:{},  // {1:true, 2:true}
+    sessionFlowers:{},  // {1:1, 2:2}  per-session flower count
     muted:false
   };
 }
 function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return defaultState();
-    return Object.assign(defaultState(), JSON.parse(raw));
+    if(raw){
+      return Object.assign(defaultState(), JSON.parse(raw));
+    }
+    // Migration from v1 (had bushLevel + totalFlowers) — only if v1 exists.
+    const old = localStorage.getItem("magicGarden.v1");
+    if(old){
+      try{
+        const v1 = JSON.parse(old);
+        const migrated = defaultState();
+        const total = Math.max(0, Math.min(40, v1.totalFlowers||0));
+        // Distribute old flowers into first 1-2 bushes (never above capacity)
+        const targets = ["b1","b2"];
+        let placed = 0;
+        for(let i=0;i<targets.length && placed<total;i++){
+          const nest = BUSH_NESTS.find(n=>n.id===targets[i]);
+          const cap = nest.maxFlowers;
+          const take = Math.min(cap, total - placed);
+          for(let k=0;k<take;k++){
+            const spot = SPOTS_BY_SIZE[nest.size][k % SPOTS_BY_SIZE[nest.size].length];
+            migrated.bushes.push({id:targets[i], size:nest.size, flowers:[{kind:spot.k, x:spot.x, y:spot.y}]});
+            placed++;
+          }
+        }
+        migrated.totalFlowers = total;
+        if(v1.sessionScores) migrated.sessionScores = v1.sessionScores;
+        if(v1.sessionKittens) migrated.sessionKittens = v1.sessionKittens;
+        if(v1.kittens) migrated.kittens = v1.kittens;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+        localStorage.removeItem("magicGarden.v1");
+        return migrated;
+      }catch{ return defaultState(); }
+    }
+    return defaultState();
   }catch{ return defaultState(); }
 }
 function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch{} }
@@ -469,20 +592,39 @@ function meow(){
 }
 
 /* ============================================================
-   BUSH RENDER
+   BUSH RENDER — multiple bushes, fixed size, off-center
 ============================================================ */
-const bushWrap = document.getElementById("bush-wrap");
-const flowersLayer = document.getElementById("flowers-layer");
-function renderBush(){
-  // 0 -> 0.4, 1 -> 1.0
-  const s = 0.4 + state.bushLevel * 0.6;
-  bushWrap.style.transform = `translateX(-50%) scale(${s.toFixed(3)})`;
+const bushesLayer = document.getElementById("bushes-layer");
+
+/* === Bush body SVG builder (no flowers; flowers added separately) === */
+function bushBodySVG(size, nestId){
+  // viewBox fixed at 240x220 — all bushes use it, scaling is done via CSS .size-*
+  return `
+    <ellipse cx="120" cy="212" rx="92" ry="9" fill="rgba(80,60,80,.22)" filter="url(#softShadow)"/>
+    <g filter="url(#watercolor)">
+      <ellipse cx="120" cy="125" rx="105" ry="92" fill="url(#bushGrad)"/>
+      <circle cx="58" cy="105" r="56" fill="url(#bushGrad)"/>
+      <circle cx="182" cy="105" r="56" fill="url(#bushGrad)"/>
+      <circle cx="120" cy="60" r="58" fill="url(#bushGrad)"/>
+      <circle cx="88" cy="80" r="46" fill="url(#bushGrad)"/>
+      <circle cx="152" cy="80" r="46" fill="url(#bushGrad)"/>
+      <circle cx="120" cy="115" r="52" fill="url(#bushGrad)"/>
+    </g>
+    <g opacity=".75">
+      <ellipse cx="60" cy="68" rx="22" ry="13" fill="url(#leafHi)"/>
+      <ellipse cx="180" cy="68" rx="22" ry="13" fill="url(#leafHi)"/>
+      <ellipse cx="120" cy="35" rx="24" ry="14" fill="url(#leafHi)"/>
+      <ellipse cx="38" cy="130" rx="18" ry="11" fill="url(#leafSh)"/>
+      <ellipse cx="200" cy="130" rx="18" ry="11" fill="url(#leafSh)"/>
+      <ellipse cx="120" cy="180" rx="20" ry="10" fill="url(#leafSh)"/>
+    </g>
+    <g class="bush-flowers" data-bush="${nestId}"></g>
+  `;
 }
 
-/* === Flower SVG === */
+/* === Flower SVG (5-petal) === */
 function makeFlower(cx,cy,kind){
   const NS = "http://www.w3.org/2000/svg";
-  // outer g holds SVG-attribute translate; inner g takes CSS transform (for bloom animation)
   const outer = document.createElementNS(NS,"g");
   outer.setAttribute("transform",`translate(${cx},${cy})`);
   const inner = document.createElementNS(NS,"g");
@@ -510,46 +652,130 @@ function makeFlower(cx,cy,kind){
   outer.appendChild(inner);
   return outer;
 }
-function placeFlowers(){
-  flowersLayer.innerHTML = "";
-  const count = state.totalFlowers || 0;
-  if(count === 0) return;
-  const allSpots = [
-    {x:120,y:48,k:"pink"},{x:72,y:72,k:"yellow"},{x:170,y:72,k:"purple"},
-    {x:96,y:38,k:"cream"},{x:148,y:42,k:"pink"},{x:50,y:108,k:"yellow"},
-    {x:192,y:108,k:"pink"},{x:120,y:90,k:"cream"},{x:82,y:128,k:"purple"},
-    {x:160,y:128,k:"yellow"},{x:38,y:78,k:"pink"},{x:202,y:80,k:"purple"}
-  ];
-  const spots = allSpots.slice(0, count);
-  spots.forEach((p,i)=>{
-    setTimeout(()=>{
-      const f = makeFlower(p.x,p.y,p.k);
-      flowersLayer.appendChild(f);
-      const inner = f.querySelector(".flower");
-      if(inner) inner.classList.add("bloom");
-      if(i===0) chime();
-      // Magic puff from flower position
-      requestAnimationFrame(()=>{
-        const rect = f.getBoundingClientRect();
-        if(rect.width){
-          const cx = rect.left + rect.width/2;
-          const cy = rect.top + rect.height/2;
-          spawnMagicPuff(cx, cy, { count: 10, size: 6, distance: 40, colors: PUFF_COLORS_BLOOM });
-        }
-      });
-    }, i*220);
+
+/* === Create one bush DOM (used by both initial render and new-bush spawn) === */
+function spawnBushDom(bush, isNew){
+  const nest = BUSH_NESTS.find(n=>n.id===bush.id) || BUSH_NESTS[0];
+  const wrap = document.createElement("div");
+  wrap.className = "bush-wrap size-" + bush.size + (nest.behind ? " behind" : "");
+  wrap.dataset.bushId = bush.id;
+  wrap.style.left = nest.x + "%";
+  const halo = document.createElement("div");
+  halo.className = "bush-halo";
+  wrap.appendChild(halo);
+  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.classList.add("bush-svg");
+  svg.setAttribute("viewBox","0 0 240 220");
+  svg.setAttribute("width","240");
+  svg.setAttribute("height","220");
+  svg.innerHTML = bushBodySVG(bush.size, bush.id);
+  wrap.appendChild(svg);
+  bushesLayer.appendChild(wrap);
+  // Pre-existing flowers (already bloomed) — render with no animation delay
+  const flowerLayer = svg.querySelector(".bush-flowers");
+  bush.flowers.forEach(f => {
+    const flowerG = makeFlower(f.x, f.y, f.kind);
+    flowerLayer.appendChild(flowerG);
+    const inner = flowerG.querySelector(".flower");
+    if(inner) inner.classList.add("bloom");   // immediate
   });
+  // Animate in
+  if(isNew){
+    // Slight delay staggered by position so multiple bushes don't all pop at once
+    setTimeout(()=>wrap.classList.add("in"), 80);
+  } else {
+    wrap.classList.add("in");
+  }
+  return { wrap, svg, halo, flowerLayer };
+}
+
+/* === Full re-render of all bushes (called on init) === */
+function renderBushes(){
+  // remove anything except the shared <defs> svg
+  Array.from(bushesLayer.children).forEach(c => { if(!c.querySelector("defs")) c.remove(); });
+  state.bushes.forEach(b => spawnBushDom(b, false));
+}
+
+/* === Add a new bush (when current ones are full) — picks first free nest === */
+function addNewBushInFreeNest(){
+  // pick first nest that isn't in state.bushes (prefer front row, then behind row)
+  const frontOrder = BUSH_NESTS.filter(n=>!n.behind);
+  const backOrder  = BUSH_NESTS.filter(n=>n.behind);
+  const candidates = [...frontOrder, ...backOrder];
+  const used = new Set(state.bushes.map(b=>b.id));
+  const free = candidates.find(n => !used.has(n.id));
+  if(!free) return null;
+  const bush = { id: free.id, size: free.size, flowers: [] };
+  state.bushes.push(bush);
+  return spawnBushDom(bush, true);
+}
+
+/* === Add a flower to a specific bush (if room) === */
+function addFlowerToBush(bushIdx, kind){
+  const bush = state.bushes[bushIdx];
+  const nest = BUSH_NESTS.find(n=>n.id===bush.id) || BUSH_NESTS[0];
+  const spots = SPOTS_BY_SIZE[bush.size] || SPOTS_BY_SIZE.M;
+  if(bush.flowers.length >= nest.maxFlowers) return null; // full
+  // Pick a random unused spot
+  const used = new Set(bush.flowers.map(f => `${f.x},${f.y}`));
+  const candidates = spots.filter(s => !used.has(`${s.x},${s.y}`));
+  if(!candidates.length) return null;
+  const spot = candidates[(Math.random()*candidates.length)|0];
+  const flower = { kind, x: spot.x, y: spot.y };
+  bush.flowers.push(flower);
+  // Find the DOM and animate the new flower
+  const wrap = bushesLayer.querySelector(`.bush-wrap[data-bush-id="${bush.id}"]`);
+  if(wrap){
+    const flowerLayer = wrap.querySelector(".bush-flowers");
+    const f = makeFlower(spot.x, spot.y, kind);
+    flowerLayer.appendChild(f);
+    const inner = f.querySelector(".flower");
+    if(inner) inner.classList.add("bloom");
+    // Magic puff
+    requestAnimationFrame(()=>{
+      const rect = f.getBoundingClientRect();
+      if(rect.width){
+        spawnMagicPuff(rect.left + rect.width/2, rect.top + rect.height/2,
+          { count: 10, size: 6, distance: 40, colors: PUFF_COLORS_BLOOM });
+      }
+    });
+    return { wrap, flower, spot };
+  }
+  return null;
+}
+
+/* === Find a bush that has room for a new flower, or create one === */
+function placeFlowerInGarden(kind){
+  // First pass: any existing bush with room
+  for(let i=0;i<state.bushes.length;i++){
+    const bush = state.bushes[i];
+    const nest = BUSH_NESTS.find(n=>n.id===bush.id);
+    if(bush.flowers.length < nest.maxFlowers){
+      return addFlowerToBush(i, kind);
+    }
+  }
+  // No room anywhere — create a new bush and put the flower there
+  const newBush = addNewBushInFreeNest();
+  if(!newBush) return null;
+  const idx = state.bushes.length - 1;
+  return addFlowerToBush(idx, kind);
+}
+
+/* === Render all existing flowers (initial — used on init for a fresh page reload) === */
+function renderAllFlowers(){
+  // spawnBushDom already renders existing flowers, so renderBushes() handles it.
+  // This function is kept as a no-op for backward compatibility.
 }
 
 /* ============================================================
    KITTEN SVG (watercolor-ish, with 5 coat patterns)
 ============================================================ */
-function makeKitten(coat, adult){
+function makeKitten(coat, adult, facing="R"){
   const NS = "http://www.w3.org/2000/svg";
   const size = adult ? 110 : 78;
   const vb = 100;
   const wrap = document.createElement("div");
-  wrap.className = "kitten" + (adult ? " adult" : "");
+  wrap.className = "kitten" + (adult ? " adult" : "") + " facing-" + facing;
   const svg = document.createElementNS(NS,"svg");
   svg.setAttribute("viewBox",`0 0 ${vb} ${vb}`);
   svg.setAttribute("width",size);
@@ -580,8 +806,15 @@ function makeKitten(coat, adult){
   `;
   svg.appendChild(defs);
 
+  // Root group: mirror if facing left, so the cat looks the other way
+  const root = document.createElementNS(NS,"g");
+  if(facing === "L"){
+    root.setAttribute("transform","scale(-1,1) translate(-100,0)");
+  }
+
   const g = document.createElementNS(NS,"g");
   g.setAttribute("filter",`url(#wc-${coat})`);
+  g.setAttribute("class","kitten-g");
 
   // shadow
   const sh = document.createElementNS(NS,"ellipse");
@@ -589,19 +822,49 @@ function makeKitten(coat, adult){
   sh.setAttribute("fill","rgba(80,60,80,.25)");
   g.appendChild(sh);
 
-  // tail (behind body)
+  // tail (behind body) — fluffy S-curve with tuft at the tip
+  const tailGroup = document.createElementNS(NS,"g");
+  tailGroup.setAttribute("class","tail");
+  // Main thick stroke (outer)
   const tail = document.createElementNS(NS,"path");
-  tail.setAttribute("d","M 30 62 Q 12 52 16 32 Q 22 22 30 32 Q 32 42 30 55");
-  tail.setAttribute("stroke",c.main);
-  tail.setAttribute("stroke-width","7");
+  tail.setAttribute("d","M 32 64 C 12 56 6 28 20 16");
   tail.setAttribute("fill","none");
+  tail.setAttribute("stroke",c.main);
+  tail.setAttribute("stroke-width","9");
   tail.setAttribute("stroke-linecap","round");
-  tail.setAttribute("class","tail");
-  g.appendChild(tail);
-  const tailTip = document.createElementNS(NS,"circle");
-  tailTip.setAttribute("cx",22); tailTip.setAttribute("cy",30); tailTip.setAttribute("r",3.5);
-  tailTip.setAttribute("fill", c.dark);
-  g.appendChild(tailTip);
+  tailGroup.appendChild(tail);
+  // Inner highlight (lighter color, thinner) — gives a fluffy 3D look
+  const tailHi = document.createElementNS(NS,"path");
+  tailHi.setAttribute("d","M 32 62 C 14 54 10 30 22 20");
+  tailHi.setAttribute("fill","none");
+  tailHi.setAttribute("stroke",c.light);
+  tailHi.setAttribute("stroke-width","5");
+  tailHi.setAttribute("stroke-linecap","round");
+  tailHi.setAttribute("opacity",".7");
+  tailGroup.appendChild(tailHi);
+  // Tuft (dark fluffy tip)
+  const tailTuft = document.createElementNS(NS,"ellipse");
+  tailTuft.setAttribute("cx",19); tailTuft.setAttribute("cy",15);
+  tailTuft.setAttribute("rx",6); tailTuft.setAttribute("ry",5);
+  tailTuft.setAttribute("fill",c.dark);
+  tailTuft.setAttribute("opacity",".88");
+  tailGroup.appendChild(tailTuft);
+  // Short fluff strokes along the tail for texture
+  for(let i=0;i<3;i++){
+    const t = 0.25 + i*0.28;
+    // interpolate along the curve
+    const px = 32 - (32-20)*t;
+    const py = 64 - (64-16)*t;
+    const fluff = document.createElementNS(NS,"path");
+    fluff.setAttribute("d",`M ${px-2} ${py} l -5 ${i%2===0?-2:-1}`);
+    fluff.setAttribute("stroke",c.main);
+    fluff.setAttribute("stroke-width","1.6");
+    fluff.setAttribute("fill","none");
+    fluff.setAttribute("opacity",".55");
+    fluff.setAttribute("stroke-linecap","round");
+    tailGroup.appendChild(fluff);
+  }
+  g.appendChild(tailGroup);
 
   // back leg (far, behind)
   const legBackFar = document.createElementNS(NS,"ellipse");
@@ -786,7 +1049,8 @@ function makeKitten(coat, adult){
   blush.setAttribute("opacity",".5");
   g.appendChild(blush);
 
-  svg.appendChild(g);
+  root.appendChild(g);
+  svg.appendChild(root);
   wrap.appendChild(svg);
   return { wrap, svg, g };
 }
@@ -811,7 +1075,8 @@ function renderAllKittens(){
   kittenRefs = [];
   state.kittens.forEach((k, i)=>{
     const adult = k.ageStage === "cat";
-    const { wrap, svg, g } = makeKitten(k.coatColor, adult);
+    const facing = k.facing || (i % 2 === 0 ? "R" : "L");   // alternate for variety
+    const { wrap, svg, g } = makeKitten(k.coatColor, adult, facing);
     const total = state.kittens.length;
     const leftPct = positionFor(i, total);
     wrap.style.left = leftPct + "%";
@@ -822,7 +1087,7 @@ function renderAllKittens(){
     kittensRow.appendChild(wrap);
     kittenRefs.push({ kitten:k, wrap, g, action });
 
-    // tap to change action
+    // tap to change action + show speech bubble
     wrap.addEventListener("click",()=>{
       const next = ACTIONS[(ACTIONS.indexOf(k.action||"wag")+1+Math.floor(Math.random()*3)) % ACTIONS.length];
       k.action = next;
@@ -831,6 +1096,7 @@ function renderAllKittens(){
       ACTIONS.forEach(a=>wrap.classList.remove("anim-"+a));
       wrap.classList.add("anim-"+next);
       meow();
+      sayKitten(wrap);
     });
   });
   // animate in (start in hidden state, then reveal immediately)
@@ -844,7 +1110,9 @@ function renderAllKittens(){
 
 function addNewKittenDom(kitten){
   const total = state.kittens.length;
-  const { wrap, svg, g } = makeKitten(kitten.coatColor, false);
+  const facing = kitten.facing || (Math.random() < 0.5 ? "L" : "R");
+  kitten.facing = facing;
+  const { wrap, svg, g } = makeKitten(kitten.coatColor, false, facing);
   const leftPct = positionFor(total-1, total);
   wrap.style.left = leftPct + "%";
   wrap.style.transform = `translateX(-50%) translateY(60px) scale(.2)`;
@@ -859,6 +1127,7 @@ function addNewKittenDom(kitten){
     ACTIONS.forEach(a=>wrap.classList.remove("anim-"+a));
     wrap.classList.add("anim-"+next);
     meow();
+    sayKitten(wrap);
   });
   // Falling star before arrival
   spawnFallingStar();
@@ -1044,15 +1313,13 @@ function spawnSparkle(){
   setTimeout(()=>s.remove(), 5500);
 }
 
-/* === Halo on bush === */
-const bushHalo = document.getElementById("bush-halo");
-function showBushHalo(duration=2200){
-  bushHalo.classList.add("on");
-  setTimeout(()=>bushHalo.classList.remove("on"), duration);
+/* === Halo on bush (per-bush) === */
+function pulseBushHalos(){
+  // Pulse halos of the front-row bushes (gentle ambient glow at score=100)
+  document.querySelectorAll(".bush-wrap:not(.behind) .bush-halo").forEach(h => h.classList.add("on"));
 }
-function pulseBushHalo(){
-  bushHalo.classList.add("on");
-  // stays on while score==100
+function clearBushHalos(){
+  document.querySelectorAll(".bush-halo.on").forEach(h => h.classList.remove("on"));
 }
 
 /* === Glow under a kitten (transient) === */
@@ -1061,6 +1328,18 @@ function showKittenGlow(wrap, duration=1800){
   glow.className = "glow on";
   wrap.appendChild(glow);
   setTimeout(()=>{ glow.classList.remove("on"); setTimeout(()=>glow.remove(), 600); }, duration);
+}
+
+/* === Speech bubble above a kitten (tap to talk) === */
+function sayKitten(wrap){
+  // Remove any old speech bubble on this kitten
+  const old = wrap.querySelector(".speech");
+  if(old) old.remove();
+  const bubble = document.createElement("div");
+  bubble.className = "speech";
+  bubble.textContent = KITTEN_SAY[(Math.random()*KITTEN_SAY.length)|0];
+  wrap.appendChild(bubble);
+  setTimeout(()=>bubble.remove(), 1800);
 }
 
 /* ============================================================
@@ -1121,18 +1400,14 @@ function flowersForScore(s){
 }
 
 function runReward(){
-  // 1. bush growth (proportional to score)
-  const growth = (score/100) * 0.45;
-  state.bushLevel = Math.min(1, state.bushLevel + growth);
-
-  // 2. flowers for this session (additive when score improves)
+  // 1. flowers for this session (additive when score improves)
   const wantFlowers = flowersForScore(score);
   const hadFlowers  = flowersForScore(state.sessionScores[session] || 0);
   const addedFlowers = Math.max(0, wantFlowers - hadFlowers);
-  state.totalFlowers = (state.totalFlowers || 0) + addedFlowers;
   state.sessionScores[session] = score;
+  state.sessionFlowers[session] = wantFlowers;
 
-  // 3. kitten — only at score=100 and when this session is new
+  // 2. kitten — only at score=100 and when this session is new
   let addedKitten = false;
   if(score === 100 && !state.sessionKittens[session]){
     state.sessionKittens[session] = true;
@@ -1142,25 +1417,39 @@ function runReward(){
     }
     const coat = COATS[(Math.random()*COATS.length)|0];
     const action = ACTIONS[(Math.random()*ACTIONS.length)|0];
-    state.kittens.push({ id: Date.now()+Math.random(), ageStage:"kitten", coatColor: coat, action });
+    const facing = Math.random() < 0.5 ? "L" : "R";
+    state.kittens.push({ id: Date.now()+Math.random(), ageStage:"kitten", coatColor: coat, action, facing });
     addedKitten = true;
   }
 
   saveState();
   updateStatus();
 
-  // Animate bush
-  renderBush();
+  // 3. animate flowers blooming on bushes (one at a time, with magic)
+  if(addedFlowers > 0){
+    const kinds = ["pink","yellow","purple","cream"];
+    let flowerTimers = [];
+    for(let i=0;i<addedFlowers;i++){
+      const k = kinds[(Math.random()*kinds.length)|0];
+      flowerTimers.push(setTimeout(()=>{
+        if(i===0) chime();
+        const r = placeFlowerInGarden(k);
+        if(r) purr();
+      }, 700 + i*650));
+    }
+    // Update totalFlowers AFTER spawning
+    state.totalFlowers = state.bushes.reduce((s,b)=>s+b.flowers.length, 0);
+    saveState();
+  }
 
-  // Flowers + purr (only if there are flowers to show)
-  if(state.totalFlowers > 0){
-    setTimeout(()=>{ placeFlowers(); purr(); }, 900);
-  }
-  // Rainbow halo on bush when excellent
+  // 4. Rainbow halo on front-row bushes at score=100
   if(score >= 100){
-    setTimeout(()=>{ pulseBushHalo(); }, 300);
+    setTimeout(()=>{ pulseBushHalos(); }, 300);
+  } else {
+    clearBushHalos();
   }
-  // Confetti + celebration text (multi-line fading)
+
+  // 5. Confetti + celebration text
   if(score >= 100){
     setTimeout(()=>{ spawnConfetti(120); celebrate(); }, 400);
   } else if(score >= 50){
@@ -1169,10 +1458,10 @@ function runReward(){
     setTimeout(()=>celebrate(), 400);
   }
 
-  // Sparkles
+  // 6. Sparkles
   for(let i=0;i<6;i++) setTimeout(spawnSparkle, 700 + i*200);
 
-  // Kitten add + grow with magic
+  // 7. Kitten add + grow with magic
   if(addedKitten){
     setTimeout(()=>{
       addNewKittenDom(state.kittens[state.kittens.length-1]);
@@ -1184,13 +1473,50 @@ function runReward(){
 }
 
 /* ============================================================
+   GROUND DECOR (rocks, mushrooms, grass tufts)
+============================================================ */
+function renderGroundDecor(){
+  try{
+  const layer = document.getElementById("ground-decor");
+  if(!layer) return;
+  // Add: 2 big rocks, 3 small rocks, 2 mushrooms, 4 grass tufts
+  // No seed-based randomness — stable + simple. Positions are in % of viewport.
+  const decor = [
+    {cls:"rock big", left:4,  bottom:14},
+    {cls:"rock big", left:91, bottom:18},
+    {cls:"rock",     left:32, bottom:6},
+    {cls:"rock",     left:58, bottom:9},
+    {cls:"rock",     left:78, bottom:5},
+    {cls:"mushroom", left:24, bottom:12},
+    {cls:"mushroom", left:71, bottom:10},
+    {cls:"grass-tuft",left:14, bottom:9},
+    {cls:"grass-tuft",left:46, bottom:11},
+    {cls:"grass-tuft",left:64, bottom:7},
+    {cls:"grass-tuft",left:87, bottom:13},
+  ];
+  decor.forEach(d => {
+    const el = document.createElement("div");
+    el.className = d.cls;
+    el.style.left = d.left + "%";
+    el.style.bottom = d.bottom + "%";
+    // Append to #app (not layer) — #app is position:relative, so the rocks get
+    // a real positioned ancestor and render reliably in headless Edge.
+    const app = document.getElementById("app");
+    (app || layer).appendChild(el);
+  });
+  }catch(e){ console.error("renderGroundDecor error:", e); }
+}
+
+/* ============================================================
    INIT
 ============================================================ */
 function init(){
   // Show title
   setTimeout(()=>document.getElementById("title").classList.add("in"), 200);
+  // Decor (static, deterministic)
+  renderGroundDecor();
   // Initial render — state BEFORE this exercise
-  renderBush();
+  renderBushes();
   renderAllKittens();
   updateStatus();
   // After 1s pause, run reward

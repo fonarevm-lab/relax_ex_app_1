@@ -9,11 +9,22 @@ Thumbs.db
 # Build / debug artifacts
 *.log
 dom_*.html
+.tmp_dom*.html
+.tmp_v*/
+.tmp_final*/
+edge_log.txt
 screenshot_*.png
 test_*.png
 step*.png
 s[0-9]*.png
 final_*.png
+final2_*.png
+audit*.png
+audit_*.png
+audit2_*.png
+audit3_*.png
+audit_dbg*.png
+demo_*.png
 after*.png
 before.png
 preview.png
@@ -21,8 +32,8 @@ breath.png
 garden.png
 clouds.png
 horizon.png
+magic*.png
 check_*.png
-.tmp_*/
 err*.log
 
 # Node
