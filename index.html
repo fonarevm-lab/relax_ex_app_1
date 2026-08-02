@@ -150,6 +150,17 @@
   .icon-btn{position:absolute;border:none;background:rgba(255,255,255,.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);cursor:pointer;z-index:20;box-shadow:0 4px 14px rgba(120,80,100,.18);transition:transform .15s,opacity .3s;}
   .icon-btn:active{transform:scale(.9);}
   .mute-btn{top:max(16px,env(safe-area-inset-top));right:16px;width:46px;height:46px;border-radius:50%;font-size:22px;display:flex;align-items:center;justify-content:center;}
+  /* Fish button — sits to the LEFT of mute (right: 16+46+8 = 70), wiggles
+     like a fish in water. Tap to "feed" all kittens: each one sticks its
+     tongue out and says "ням-ням" in a speech bubble. */
+  .fish-btn{top:max(16px,env(safe-area-inset-top));right:70px;width:46px;height:46px;border-radius:50%;font-size:24px;display:flex;align-items:center;justify-content:center;animation:fishWiggle 2.4s ease-in-out infinite;}
+  .fish-btn:active{transform:scale(.9) rotate(20deg);}
+  @keyframes fishWiggle{
+    0%,100%{transform:rotate(-8deg) translateY(0);}
+    25%    {transform:rotate(6deg)  translateY(-2px);}
+    50%    {transform:rotate(-4deg) translateY(0);}
+    75%    {transform:rotate(8deg)  translateY(-1px);}
+  }
   /* === Status panel === */
   .status{position:absolute;top:max(16px,env(safe-area-inset-top));left:16px;background:rgba(255,255,255,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:18px;padding:10px 14px;font-size:13px;z-index:15;box-shadow:0 4px 14px rgba(120,80,100,.12);line-height:1.5;}
   .status p{margin:0;display:flex;align-items:center;gap:6px;}
@@ -186,6 +197,13 @@
   .anim-lick g{animation:lick 2.8s ease-in-out infinite;transform-origin:50% 100%;}
   .eye{transform-origin:center;animation:blink 5s ease-in-out infinite;}
   .eye.r{animation-delay:.15s;}
+  /* === Tongue (hidden, shown when .kitten has .tongue-out class) ===
+     The tongue sits at cx=84 cy=56 in viewBox coords — to the right of the
+     mouth. When the cat is facing-L, the parent <svg> mirrors everything
+     (scaleX(-1)), so the tongue automatically appears on the left side of
+     the mirrored mouth. No per-cat logic needed. */
+  .tongue{transform-origin:84px 53px;transform:scale(0);transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
+  .kitten.tongue-out .tongue{transform:scale(1);}
   /* === Magic particles === */
   .magic-puff{position:fixed;border-radius:50%;pointer-events:none;z-index:11;box-shadow:0 0 8px currentColor;}
   .magic-star{position:fixed;pointer-events:none;z-index:11;color:#ffd966;filter:drop-shadow(0 0 4px rgba(255,220,100,.7));}
@@ -416,6 +434,7 @@
   <div class="title" id="title">Твой волшебный сад</div>
 
   <button class="icon-btn mute-btn" id="mute-btn" aria-label="Звук">🔊</button>
+  <button class="icon-btn fish-btn" id="fish-btn" aria-label="Покормить котят">🐟</button>
   <button class="icon-btn reset-btn" id="reset-btn">Сбросить прогресс</button>
 </div>
 
@@ -577,6 +596,81 @@ function syncMute(){ muteBtn.textContent = state.muted ? "🔇" : "🔊"; }
 muteBtn.addEventListener("click",()=>{ state.muted = !state.muted; saveState(); syncMute(); });
 syncMute();
 
+/* === Fish button — feed all kittens. Each one sticks its tongue out and
+   says a "ням" line. Even with no kittens, tapping the fish still plays
+   the yum sound and pings the button (so the kid has feedback). === */
+const FISH_SAY = [
+  "Ням! 🐟",
+  "Ням-ням! 😋",
+  "Вкусно! 💕",
+  "Ещё! 🐟",
+  "Мммм! 😻",
+  "Рыбка! 🐟",
+  "*чавкает* 😺"
+];
+const fishBtn = document.getElementById("fish-btn");
+fishBtn.addEventListener("click", () => {
+  // 1. tiny wiggle on the button itself
+  fishBtn.animate(
+    [
+      { transform: "scale(1) rotate(0deg)" },
+      { transform: "scale(.85) rotate(25deg)" },
+      { transform: "scale(1.15) rotate(-10deg)" },
+      { transform: "scale(1) rotate(0deg)" }
+    ],
+    { duration: 380, easing: "cubic-bezier(.34,1.56,.64,1)" }
+  );
+  // 2. tongue + speech on every kitten
+  const n = kittenRefs.length;
+  if(n > 0){
+    kittenRefs.forEach((ref, i) => {
+      const wrap = ref.wrap;
+      // tongue pops in
+      wrap.classList.add("tongue-out");
+      setTimeout(() => wrap.classList.remove("tongue-out"), 1900);
+      // speech bubble, staggered
+      setTimeout(() => {
+        const old = wrap.querySelector(".speech");
+        if(old) old.remove();
+        const b = document.createElement("div");
+        b.className = "speech";
+        b.textContent = FISH_SAY[(Math.random()*FISH_SAY.length)|0];
+        wrap.appendChild(b);
+        setTimeout(() => b.remove(), 1800);
+      }, i * 220);
+    });
+  }
+  // 3. yum sound (once, shared — not per kitten, would be too noisy)
+  yum();
+  // 4. tiny heart puffs above the fish, regardless of kitten count
+  spawnFishHearts();
+});
+
+function spawnFishHearts(){
+  // burst a few small heart puffs near the fish button
+  const r = fishBtn.getBoundingClientRect();
+  const cx = r.left + r.width/2;
+  const cy = r.top  + r.height/2;
+  const hearts = ["💕","✨","💖"];
+  for(let i=0; i<5; i++){
+    setTimeout(() => {
+      const dx = (Math.random()-0.5) * 70;
+      const dy = -20 - Math.random()*40;
+      const p = document.createElement("div");
+      p.className = "magic-star";
+      p.textContent = hearts[(Math.random()*hearts.length)|0];
+      p.style.fontSize = (12 + Math.random()*8) + "px";
+      p.style.left = cx + "px";
+      p.style.top  = cy + "px";
+      p.style.setProperty("--dx", dx + "px");
+      p.style.setProperty("--dy", dy + "px");
+      p.style.animation = "magicPuff 900ms cubic-bezier(.2,.7,.4,1) forwards";
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 1000);
+    }, i * 80);
+  }
+}
+
 /* ============================================================
    WEB AUDIO
 ============================================================ */
@@ -651,6 +745,23 @@ function meow(){
     g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
     o.connect(g).connect(ctx.destination);
     o.start(); o.stop(ctx.currentTime + 0.45);
+  }catch{}
+}
+/* "Ням" — short low murmur the kittens make when fed. */
+function yum(){
+  if(state.muted) return;
+  const ctx = getCtx(); if(!ctx) return;
+  try{
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(220, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.18);
+    g.gain.value = 0;
+    g.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.32);
+    o.connect(g).connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.35);
   }catch{}
 }
 
@@ -1109,6 +1220,17 @@ function makeKitten(coat, adult, facing="R"){
   blush.setAttribute("fill","#ffb3c6");
   blush.setAttribute("opacity",".5");
   g.appendChild(blush);
+
+  // tongue (hidden by default, pops out when .kitten has .tongue-out class)
+  // Pink droplet below the mouth. Lives in R-profile (right of the muzzle);
+  // CSS scaleX(-1) on the parent <svg> mirrors it correctly for L-facing
+  // cats, so the same shape works for both.
+  const tongue = document.createElementNS(NS,"ellipse");
+  tongue.setAttribute("cx",84); tongue.setAttribute("cy",57);
+  tongue.setAttribute("rx",2.2); tongue.setAttribute("ry",3.2);
+  tongue.setAttribute("fill","#ff5a7a");
+  tongue.setAttribute("class","tongue");
+  g.appendChild(tongue);
 
   root.appendChild(g);
   svg.appendChild(root);
