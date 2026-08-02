@@ -59,7 +59,7 @@
     70% { opacity:.7; }
     100%{ transform:translate(-5px,-22px) scale(1.3); opacity:0; }
   }
-  .tree-wrap{position:absolute;bottom:3%;right:2%;width:30%;max-width:130px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;}
+  .tree-wrap{position:absolute;bottom:32%;right:2%;width:20%;max-width:90px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;}
   .tree-svg{display:block;width:100%;height:auto;}
   @keyframes treeSway{0%,100%{transform:rotate(-1deg);}50%{transform:rotate(1.2deg);}}
   /* === Ground === */
@@ -67,11 +67,11 @@
   .ground::before{content:"";position:absolute;top:-6px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 10% 50%,var(--grass) 0%,transparent 50%),radial-gradient(ellipse at 30% 50%,var(--grass-l) 0%,transparent 60%),radial-gradient(ellipse at 55% 50%,var(--grass) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,var(--grass-l) 0%,transparent 60%),radial-gradient(ellipse at 95% 50%,var(--grass) 0%,transparent 50%);background-size:60px 14px;background-repeat:repeat-x;}
   /* === Bushes (multiple, fixed size, off-center) === */
   .bushes-layer{position:absolute;inset:0;pointer-events:none;z-index:3;}
-  .bush-wrap{position:absolute;bottom:18%;transform:translateX(-50%) scale(.75);transform-origin:bottom center;opacity:0;filter:drop-shadow(0 8px 12px rgba(80,60,80,.18));transition:transform 1.4s cubic-bezier(.34,1.56,.64,1),opacity .9s ease-out;z-index:3;}
+  .bush-wrap{position:absolute;bottom:18%;transform:translateX(-50%) scale(.6);transform-origin:bottom center;opacity:0;filter:drop-shadow(0 6px 10px rgba(80,60,80,.16));transition:transform 1.4s cubic-bezier(.34,1.56,.64,1),opacity .9s ease-out;z-index:3;}
   .bush-wrap.in{opacity:1;}
-  .bush-wrap.size-S{transform:translateX(-50%) scale(.55);}
-  .bush-wrap.size-M{transform:translateX(-50%) scale(.75);}
-  .bush-wrap.size-L{transform:translateX(-50%) scale(.92);}
+  .bush-wrap.size-S{transform:translateX(-50%) scale(.48);}
+  .bush-wrap.size-M{transform:translateX(-50%) scale(.6);}
+  .bush-wrap.size-L{transform:translateX(-50%) scale(.72);}
   .bush-wrap.behind{z-index:2;opacity:.7;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));}
   .bush-wrap.behind.in{opacity:.7;}
   .bush-svg{display:block;position:relative;}
@@ -95,12 +95,35 @@
   .flower{opacity:0;transform:scale(0);transform-origin:center;transition:all .8s cubic-bezier(.34,1.56,.64,1);}
   .flower.bloom{opacity:1;transform:scale(1);}
   /* === Kittens === */
-  .kittens-row{position:absolute;bottom:6%;left:0;right:0;height:30%;z-index:6;pointer-events:none;}
+  .kittens-row{position:absolute;bottom:6%;left:0;right:0;width:100%;height:30%;z-index:6;pointer-events:none;}
   .kitten{position:absolute;bottom:0;opacity:0;cursor:pointer;pointer-events:auto;will-change:transform;z-index:6;}
   .kitten.in{opacity:1;}
   .kitten.grow{transition:transform 1.8s cubic-bezier(.34,1.56,.64,1);}
   .kitten:hover,.kitten:active{filter:drop-shadow(0 0 12px rgba(255,220,120,.7)) brightness(1.05);}
   .kitten .tail{transform-origin:30% 100%;}
+  /* === Kitten facing: whole cat mirrors on the <svg>, with a slow periodic turn.
+     --turn-delay (negative) staggers each cat so they don't flip in sync. === */
+  .kitten > svg{
+    transform-origin:50% 100%;
+    transform-box:fill-box;
+    animation:turnFromR 14s ease-in-out infinite;
+    animation-delay:var(--turn-delay,0s);
+    will-change:transform;
+  }
+  .kitten.facing-L > svg{ animation-name:turnFromL; }
+  .kitten.grow > svg{ animation-play-state:paused; }
+  @keyframes turnFromR{
+    0%,38%  { transform:scaleX(1); }
+    50%     { transform:scaleX(-1); }
+    88%     { transform:scaleX(-1); }
+    100%    { transform:scaleX(1); }
+  }
+  @keyframes turnFromL{
+    0%,38%  { transform:scaleX(-1); }
+    50%     { transform:scaleX(1); }
+    88%     { transform:scaleX(1); }
+    100%    { transform:scaleX(-1); }
+  }
   /* === Speech bubble (tap a kitten) === */
   .speech{position:absolute;left:50%;bottom:88%;transform:translateX(-50%) translateY(8px) scale(.6);background:rgba(255,255,255,.96);border:2px solid #7a5a6a;border-radius:16px;padding:5px 11px;font-size:13px;font-weight:700;color:#5a3d4f;white-space:nowrap;box-shadow:0 3px 8px rgba(80,60,80,.2);pointer-events:none;opacity:0;animation:speechPop 1.7s cubic-bezier(.34,1.56,.64,1) forwards;z-index:25;letter-spacing:.2px;}
   .speech::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%) rotate(180deg);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid rgba(255,255,255,.96);}
@@ -175,6 +198,23 @@
     100%{ transform:translate(var(--tx),100vh) scale(1) rotate(720deg); opacity:0; }
   }
   .falling-star{position:fixed;top:0;left:0;font-size:42px;pointer-events:none;z-index:11;filter:drop-shadow(0 0 12px rgba(255,220,120,.9));}
+  /* === Butterfly visitor (score=100) — flies across with a wavy path === */
+  .butterfly{position:absolute;pointer-events:none;z-index:10;filter:drop-shadow(0 2px 4px rgba(80,60,80,.25));will-change:transform;transform-origin:center;}
+  .butterfly .wings{transform-origin:30px 25px;animation:butterflyFlap .22s ease-in-out infinite alternate;}
+  .butterfly[data-ltr="0"] svg{transform:scaleX(-1);}
+  @keyframes butterflyFlap{
+    0%  { transform:scaleX(.4) scaleY(1.05); }
+    100%{ transform:scaleX(1.05) scaleY(.95); }
+  }
+  @keyframes butterflyFly{
+    0%   { transform:translate(0,0) scale(1); opacity:0; }
+    8%   { opacity:1; }
+    25%  { transform:translate(calc(var(--dx) * .25), -22px) scale(1); }
+    50%  { transform:translate(calc(var(--dx) * .5), 18px) scale(1); }
+    75%  { transform:translate(calc(var(--dx) * .75), -14px) scale(1); }
+    92%  { opacity:1; }
+    100% { transform:translate(var(--dx), 0) scale(1); opacity:0; }
+  }
   /* === Glow around kittens === */
   .glow{position:absolute;left:50%;bottom:-10px;width:130%;height:60%;transform:translateX(-50%);border-radius:50%;pointer-events:none;opacity:0;z-index:-1;background:radial-gradient(ellipse at center,rgba(255,220,150,.7) 0%,rgba(255,180,200,.3) 40%,transparent 70%);filter:blur(6px);transition:opacity .6s;}
   .glow.on{opacity:1;animation:glowPulse 1.6s ease-in-out infinite;}
@@ -445,6 +485,7 @@ function defaultState(){
       {id:"b1", size:"M", flowers:[]},     // one starter bush (empty) — first flower will bloom on score>=50
     ],
     totalFlowers:0,
+    totalSessions:0,    // count of perfect sessions (score=100) — drives flower growth
     kittens:[],
     sessionScores:{},   // {1:50, 2:100}
     sessionKittens:{},  // {1:true, 2:true}
@@ -456,7 +497,20 @@ function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
-      return Object.assign(defaultState(), JSON.parse(raw));
+      const merged = Object.assign(defaultState(), JSON.parse(raw));
+      // Migration: for existing kittens without facing, set by id hash (so it's
+      // a mix of R/L, not all the same direction)
+      if(merged.kittens && merged.kittens.length){
+        merged.kittens.forEach((k, i)=>{
+          if(!k.facing){
+            // hash the id to get a stable value
+            let h = typeof k.id === "number" ? k.id : 0;
+            if(typeof k.id === "string") for(let c=0;c<k.id.length;c++) h = (h*31 + k.id.charCodeAt(c)) | 0;
+            k.facing = ((Math.abs(h) ^ i) % 2 === 0) ? "R" : "L";
+          }
+        });
+      }
+      return merged;
     }
     // Migration from v1 (had bushLevel + totalFlowers) — only if v1 exists.
     const old = localStorage.getItem("magicGarden.v1");
@@ -622,11 +676,11 @@ function bushBodySVG(size, nestId){
   `;
 }
 
-/* === Flower SVG (5-petal) === */
-function makeFlower(cx,cy,kind){
+/* === Flower SVG (5-petal, with growth scale) === */
+function makeFlower(cx,cy,kind,size=1){
   const NS = "http://www.w3.org/2000/svg";
   const outer = document.createElementNS(NS,"g");
-  outer.setAttribute("transform",`translate(${cx},${cy})`);
+  outer.setAttribute("transform",`translate(${cx},${cy}) scale(${size})`);
   const inner = document.createElementNS(NS,"g");
   inner.setAttribute("class","flower");
   const palettes = {
@@ -673,8 +727,10 @@ function spawnBushDom(bush, isNew){
   bushesLayer.appendChild(wrap);
   // Pre-existing flowers (already bloomed) — render with no animation delay
   const flowerLayer = svg.querySelector(".bush-flowers");
+  // Flowers grow with sessions: each session adds 0.05 to scale, capped at +0.4
+  const flowerScale = 1 + Math.min(0.4, (state.totalSessions||0) * 0.05);
   bush.flowers.forEach(f => {
-    const flowerG = makeFlower(f.x, f.y, f.kind);
+    const flowerG = makeFlower(f.x, f.y, f.kind, flowerScale);
     flowerLayer.appendChild(flowerG);
     const inner = flowerG.querySelector(".flower");
     if(inner) inner.classList.add("bloom");   // immediate
@@ -806,11 +862,11 @@ function makeKitten(coat, adult, facing="R"){
   `;
   svg.appendChild(defs);
 
-  // Root group: mirror if facing left, so the cat looks the other way
+  // Root group — holds body+head together. Facing (mirror) is applied by CSS
+  // on the <svg> (transform: scaleX(±1)) plus the periodic turn animation, so
+  // the whole cat — body, legs, tail, head, face — turns as one.
   const root = document.createElementNS(NS,"g");
-  if(facing === "L"){
-    root.setAttribute("transform","scale(-1,1) translate(-100,0)");
-  }
+  root.setAttribute("class","kitten-root");
 
   const g = document.createElementNS(NS,"g");
   g.setAttribute("filter",`url(#wc-${coat})`);
@@ -822,10 +878,9 @@ function makeKitten(coat, adult, facing="R"){
   sh.setAttribute("fill","rgba(80,60,80,.25)");
   g.appendChild(sh);
 
-  // tail (behind body) — fluffy S-curve with tuft at the tip
+  // tail (behind body)
   const tailGroup = document.createElementNS(NS,"g");
   tailGroup.setAttribute("class","tail");
-  // Main thick stroke (outer)
   const tail = document.createElementNS(NS,"path");
   tail.setAttribute("d","M 32 64 C 12 56 6 28 20 16");
   tail.setAttribute("fill","none");
@@ -833,7 +888,6 @@ function makeKitten(coat, adult, facing="R"){
   tail.setAttribute("stroke-width","9");
   tail.setAttribute("stroke-linecap","round");
   tailGroup.appendChild(tail);
-  // Inner highlight (lighter color, thinner) — gives a fluffy 3D look
   const tailHi = document.createElementNS(NS,"path");
   tailHi.setAttribute("d","M 32 62 C 14 54 10 30 22 20");
   tailHi.setAttribute("fill","none");
@@ -842,17 +896,14 @@ function makeKitten(coat, adult, facing="R"){
   tailHi.setAttribute("stroke-linecap","round");
   tailHi.setAttribute("opacity",".7");
   tailGroup.appendChild(tailHi);
-  // Tuft (dark fluffy tip)
   const tailTuft = document.createElementNS(NS,"ellipse");
   tailTuft.setAttribute("cx",19); tailTuft.setAttribute("cy",15);
   tailTuft.setAttribute("rx",6); tailTuft.setAttribute("ry",5);
   tailTuft.setAttribute("fill",c.dark);
   tailTuft.setAttribute("opacity",".88");
   tailGroup.appendChild(tailTuft);
-  // Short fluff strokes along the tail for texture
   for(let i=0;i<3;i++){
     const t = 0.25 + i*0.28;
-    // interpolate along the curve
     const px = 32 - (32-20)*t;
     const py = 64 - (64-16)*t;
     const fluff = document.createElementNS(NS,"path");
@@ -873,7 +924,7 @@ function makeKitten(coat, adult, facing="R"){
   legBackFar.setAttribute("opacity",".7");
   g.appendChild(legBackFar);
 
-  // body (horizontal oval)
+  // body
   const body = document.createElementNS(NS,"ellipse");
   body.setAttribute("cx",48); body.setAttribute("cy",66); body.setAttribute("rx",26); body.setAttribute("ry",15);
   body.setAttribute("fill",`url(#body-${coat})`);
@@ -886,7 +937,7 @@ function makeKitten(coat, adult, facing="R"){
   belly.setAttribute("opacity",".7");
   g.appendChild(belly);
 
-  // back leg (near)
+  // back leg (near) + paw
   const legBack = document.createElementNS(NS,"ellipse");
   legBack.setAttribute("cx",42); legBack.setAttribute("cy",84); legBack.setAttribute("rx",4.5); legBack.setAttribute("ry",7.5);
   legBack.setAttribute("fill",c.main);
@@ -896,7 +947,7 @@ function makeKitten(coat, adult, facing="R"){
   pawB.setAttribute("fill",c.belly);
   g.appendChild(pawB);
 
-  // front leg (near)
+  // front leg (near) + paw
   const legFront = document.createElementNS(NS,"ellipse");
   legFront.setAttribute("cx",62); legFront.setAttribute("cy",83); legFront.setAttribute("rx",4.5); legFront.setAttribute("ry",8);
   legFront.setAttribute("fill",c.main);
@@ -906,49 +957,7 @@ function makeKitten(coat, adult, facing="R"){
   pawF.setAttribute("fill",c.belly);
   g.appendChild(pawF);
 
-  // head (to the right)
-  const head = document.createElementNS(NS,"circle");
-  head.setAttribute("cx",74); head.setAttribute("cy",48); head.setAttribute("r",15);
-  head.setAttribute("fill",c.main);
-  g.appendChild(head);
-
-  // muzzle (lighter front)
-  const muzzle = document.createElementNS(NS,"ellipse");
-  muzzle.setAttribute("cx",82); muzzle.setAttribute("cy",52); muzzle.setAttribute("rx",8); muzzle.setAttribute("ry",6);
-  muzzle.setAttribute("fill",c.belly);
-  muzzle.setAttribute("opacity",".85");
-  g.appendChild(muzzle);
-
-  // ears
-  const ear1 = document.createElementNS(NS,"polygon");
-  ear1.setAttribute("points","66,38 70,22 76,38");
-  ear1.setAttribute("fill",c.main);
-  g.appendChild(ear1);
-  const ear2 = document.createElementNS(NS,"polygon");
-  ear2.setAttribute("points","78,40 80,26 86,40");
-  ear2.setAttribute("fill",c.main);
-  g.appendChild(ear2);
-  const ear1i = document.createElementNS(NS,"polygon");
-  ear1i.setAttribute("points","68,37 71,28 74,37");
-  ear1i.setAttribute("fill","#ffb3c6");
-  ear1i.setAttribute("opacity",".85");
-  g.appendChild(ear1i);
-  const ear2i = document.createElementNS(NS,"polygon");
-  ear2i.setAttribute("points","80,38 81,32 84,38");
-  ear2i.setAttribute("fill","#ffb3c6");
-  ear2i.setAttribute("opacity",".85");
-  g.appendChild(ear2i);
-
-  // siamese mask
-  if(c.mask){
-    const mask = document.createElementNS(NS,"ellipse");
-    mask.setAttribute("cx",78); mask.setAttribute("cy",50);
-    mask.setAttribute("rx",9); mask.setAttribute("ry",6);
-    mask.setAttribute("fill",c.mask);
-    mask.setAttribute("opacity",".55");
-    g.appendChild(mask);
-  }
-  // tuxedo white chest
+  // tuxedo white chest (on body, before head)
   if(coat==="tuxedo"){
     const chest = document.createElementNS(NS,"path");
     chest.setAttribute("d","M 60 56 Q 70 64 78 56 Q 80 70 70 72 Q 60 70 60 56 Z");
@@ -994,10 +1003,53 @@ function makeKitten(coat, adult, facing="R"){
     g.appendChild(sp3);
   }
 
-  // ONE eye (side view)
+  // head (in R-profile; whole svg gets mirrored by CSS when facing="L")
+  const head = document.createElementNS(NS,"circle");
+  head.setAttribute("cx",80); head.setAttribute("cy",46); head.setAttribute("r",18);
+  head.setAttribute("fill",c.main);
+  g.appendChild(head);
+
+  // muzzle
+  const muzzle = document.createElementNS(NS,"ellipse");
+  muzzle.setAttribute("cx",82); muzzle.setAttribute("cy",52); muzzle.setAttribute("rx",8); muzzle.setAttribute("ry",6);
+  muzzle.setAttribute("fill",c.belly);
+  muzzle.setAttribute("opacity",".85");
+  g.appendChild(muzzle);
+
+  // ears
+  const ear1 = document.createElementNS(NS,"polygon");
+  ear1.setAttribute("points","66,38 70,22 76,38");
+  ear1.setAttribute("fill",c.main);
+  g.appendChild(ear1);
+  const ear2 = document.createElementNS(NS,"polygon");
+  ear2.setAttribute("points","78,40 80,26 86,40");
+  ear2.setAttribute("fill",c.main);
+  g.appendChild(ear2);
+  const ear1i = document.createElementNS(NS,"polygon");
+  ear1i.setAttribute("points","68,37 71,28 74,37");
+  ear1i.setAttribute("fill","#ffb3c6");
+  ear1i.setAttribute("opacity",".85");
+  g.appendChild(ear1i);
+  const ear2i = document.createElementNS(NS,"polygon");
+  ear2i.setAttribute("points","80,38 81,32 84,38");
+  ear2i.setAttribute("fill","#ffb3c6");
+  ear2i.setAttribute("opacity",".85");
+  g.appendChild(ear2i);
+
+  // siamese mask
+  if(c.mask){
+    const mask = document.createElementNS(NS,"ellipse");
+    mask.setAttribute("cx",78); mask.setAttribute("cy",50);
+    mask.setAttribute("rx",9); mask.setAttribute("ry",6);
+    mask.setAttribute("fill",c.mask);
+    mask.setAttribute("opacity",".55");
+    g.appendChild(mask);
+  }
+
+  // ONE eye
   const eye = document.createElementNS(NS,"ellipse");
-  eye.setAttribute("cx",79); eye.setAttribute("cy",48);
-  eye.setAttribute("rx",2.2); eye.setAttribute("ry",3.2);
+  eye.setAttribute("cx",80); eye.setAttribute("cy",48);
+  eye.setAttribute("rx",2.8); eye.setAttribute("ry",4);
   eye.setAttribute("fill","#2a2a2a");
   eye.setAttribute("class","eye");
   g.appendChild(eye);
@@ -1061,9 +1113,29 @@ function makeKitten(coat, adult, facing="R"){
 const kittensRow = document.getElementById("kittens-row");
 let kittenRefs = []; // {kitten, wrap, g}
 
+/* Per-cat visual variety (size + vertical offset) so they don't look like copy-paste.
+   Deterministic based on id, so it persists across reloads. */
+function getCatVariations(id){
+  // Hash id (number or string) to a stable value
+  let h = 0;
+  if(typeof id === "number") h = id;
+  else if(id) for(let i=0;i<id.length;i++) h = (h*31 + id.charCodeAt(i)) | 0;
+  h = Math.abs(h);
+  return {
+    sizeVar: 0.90 + ((h % 19) / 100),     // 0.90..1.08 — visible variety, no tiny cats
+    yOffset: ((h % 7) - 3) * 12,          // -36..+24 px (vertical variety)
+  };
+}
+
 function positionFor(index, total, screenW){
   // distribute across width with margin
-  const margin = 8;
+  // Wider margin when there are fewer cats, so they don't get clipped at the edges.
+  // 1 cat → 50% center.  2 cats → 18/82 (cats may have tail overflow).  3 cats → 14/50/86.  4+ cats → 8% margin tight.
+  let margin;
+  if(total <= 1)      margin = 0;
+  else if(total === 2) margin = 18;
+  else if(total === 3) margin = 14;
+  else                 margin = 8;
   const usable = 100 - margin*2;
   if(total === 1) return 50;
   const step = usable / (total - 1);
@@ -1075,12 +1147,28 @@ function renderAllKittens(){
   kittenRefs = [];
   state.kittens.forEach((k, i)=>{
     const adult = k.ageStage === "cat";
-    const facing = k.facing || (i % 2 === 0 ? "R" : "L");   // alternate for variety
+    // Random fallback if no facing stored
+    const facing = k.facing || (Math.random() < 0.5 ? "L" : "R");
+    k.facing = facing;
     const { wrap, svg, g } = makeKitten(k.coatColor, adult, facing);
     const total = state.kittens.length;
     const leftPct = positionFor(i, total);
+    // Use stored variations if set; otherwise compute from id (deterministic)
+    if(typeof k._sizeVar !== "number" || typeof k._yOffset !== "number"){
+      const v = getCatVariations(k.id);
+      k._sizeVar = v.sizeVar; k._yOffset = v.yOffset;
+    }
+    if(false) console.log("renderAllKittens APP="+JSON.stringify(document.getElementById("app").getBoundingClientRect()));
+    const v = { sizeVar: k._sizeVar, yOffset: k._yOffset };
     wrap.style.left = leftPct + "%";
-    wrap.style.transform = `translateX(-50%) translateY(40px) scale(.2)`;
+    wrap.style.transform = `translateX(-50%) translateY(${40 + v.yOffset}px) scale(${0.2 * v.sizeVar})`;
+    // Stagger the turn animation so kittens don't flip in sync.
+    // Negative delay = start "in the middle" of the keyframe timeline.
+    // Range: -14s..0s. We use the same hash as sizeVar/yOffset for stability
+    // across reloads (same cat always turns at the same beat).
+    const tHash = Math.abs((typeof k.id === "number" ? k.id : 0) ^ (k.id ? k.id.length*7 : 0));
+    const turnDelay = -(tHash % 14) + "s";
+    wrap.style.setProperty("--turn-delay", turnDelay);
     // idle animation
     const action = k.action || "wag";
     wrap.classList.add("anim-"+action);
@@ -1103,19 +1191,33 @@ function renderAllKittens(){
   kittenRefs.forEach((ref, i)=>{
     setTimeout(()=>{
       ref.wrap.classList.add("in");
-      ref.wrap.style.transform = `translateX(-50%) translateY(0) scale(${ref.kitten.ageStage==="cat" ? 1 : 0.78})`;
+      const v = ref.kitten._sizeVar || 1;
+      const y = ref.kitten._yOffset || 0;
+      ref.wrap.style.transform = `translateX(-50%) translateY(${y}px) scale(${(ref.kitten.ageStage==="cat" ? 1 : 0.78) * v})`;
     }, 80*i);
   });
 }
 
 function addNewKittenDom(kitten){
   const total = state.kittens.length;
-  const facing = kitten.facing || (Math.random() < 0.5 ? "L" : "R");
+  // Random facing (50/50) — already set by runReward with random choice.
+  let facing;
+  if(kitten.facing){
+    facing = kitten.facing;
+  } else {
+    facing = Math.random() < 0.5 ? "L" : "R";
+  }
   kitten.facing = facing;
+  // Per-cat visual variety
+  const v = getCatVariations(kitten.id);
+  kitten._sizeVar = v.sizeVar; kitten._yOffset = v.yOffset;
   const { wrap, svg, g } = makeKitten(kitten.coatColor, false, facing);
   const leftPct = positionFor(total-1, total);
   wrap.style.left = leftPct + "%";
-  wrap.style.transform = `translateX(-50%) translateY(60px) scale(.2)`;
+  wrap.style.transform = `translateX(-50%) translateY(${60 + v.yOffset}px) scale(${0.2 * v.sizeVar})`;
+  // Stagger turn animation (see renderAllKittens for rationale).
+  const tHash = Math.abs((typeof kitten.id === "number" ? kitten.id : 0) ^ (kitten.id ? String(kitten.id).length*7 : 0));
+  wrap.style.setProperty("--turn-delay", -(tHash % 14) + "s");
   const action = kitten.action || "wag";
   wrap.classList.add("anim-"+action);
   kittensRow.appendChild(wrap);
@@ -1141,7 +1243,7 @@ function addNewKittenDom(kitten){
   // animate
   setTimeout(()=>{
     wrap.classList.add("in");
-    wrap.style.transform = `translateX(-50%) translateY(0) scale(0.78)`;
+    wrap.style.transform = `translateX(-50%) translateY(${v.yOffset}px) scale(${0.78 * v.sizeVar})`;
     showKittenGlow(wrap, 2200);
   }, 100);
   // re-balance existing kittens' positions to match the new total
@@ -1164,7 +1266,9 @@ function growNewestKitten(){
   const ref = kittenRefs[kittenRefs.length - 2];
   ref.kitten.ageStage = "cat";
   ref.wrap.classList.add("adult","grow");
-  ref.wrap.style.transform = `translateX(-50%) translateY(0) scale(1)`;
+  const v = ref.kitten._sizeVar || 1;
+  const y = ref.kitten._yOffset || 0;
+  ref.wrap.style.transform = `translateX(-50%) translateY(${y}px) scale(${1 * v})`;
   setTimeout(()=>ref.wrap.classList.remove("grow"), 1800);
   // Glow + big magic burst at kitten position
   const r = ref.wrap.getBoundingClientRect();
@@ -1322,6 +1426,60 @@ function clearBushHalos(){
   document.querySelectorAll(".bush-halo.on").forEach(h => h.classList.remove("on"));
 }
 
+/* === Butterfly visitor — flies across the screen on score=100 ===
+   Random color, 4-5s wavy flight from one side to the other. */
+const BUTTERFLY_COLORS = [
+  {wing:"#ff8fa9", body:"#5a3d4f", accent:"#fff5e1"},  // pink
+  {wing:"#ffd966", body:"#7a5a2a", accent:"#fff5b3"},  // yellow
+  {wing:"#c89bff", body:"#5a3d7a", accent:"#f0e1ff"},  // purple
+  {wing:"#9ad7ff", body:"#3a5a7a", accent:"#e1f0ff"}   // blue
+];
+function spawnButterfly(){
+  const colors = BUTTERFLY_COLORS[(Math.random()*BUTTERFLY_COLORS.length)|0];
+  const leftToRight = Math.random() < 0.5;
+  const NS = "http://www.w3.org/2000/svg";
+  // Build butterfly SVG (wings flapping via CSS animation)
+  const wrap = document.createElement("div");
+  wrap.className = "butterfly";
+  wrap.style.left = leftToRight ? "-60px" : "calc(100% + 10px)";
+  // Random vertical band — middle of the screen, so it crosses the house area
+  const yBand = 35 + Math.random() * 25;   // 35..60% from top
+  wrap.style.top = yBand + "%";
+  wrap.dataset.ltr = leftToRight ? "1" : "0";
+  // SVG
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 60 50");
+  svg.setAttribute("width", "60");
+  svg.setAttribute("height", "50");
+  svg.style.overflow = "visible";
+  svg.innerHTML = `
+    <g class="bw">
+      <ellipse cx="30" cy="25" rx="2" ry="9" fill="${colors.body}"/>
+      <circle cx="30" cy="16" r="2.2" fill="${colors.body}"/>
+      <line x1="30" y1="14" x2="27" y2="9" stroke="${colors.body}" stroke-width="0.8" stroke-linecap="round"/>
+      <line x1="30" y1="14" x2="33" y2="9" stroke="${colors.body}" stroke-width="0.8" stroke-linecap="round"/>
+      <g class="wings">
+        <ellipse cx="18" cy="20" rx="13" ry="10" fill="${colors.wing}" opacity="0.85" transform="rotate(-15 18 20)"/>
+        <ellipse cx="42" cy="20" rx="13" ry="10" fill="${colors.wing}" opacity="0.85" transform="rotate(15 42 20)"/>
+        <ellipse cx="20" cy="32" rx="10" ry="7" fill="${colors.wing}" opacity="0.75" transform="rotate(20 20 32)"/>
+        <ellipse cx="40" cy="32" rx="10" ry="7" fill="${colors.wing}" opacity="0.75" transform="rotate(-20 40 32)"/>
+        <circle cx="18" cy="20" r="2.5" fill="${colors.accent}"/>
+        <circle cx="42" cy="20" r="2.5" fill="${colors.accent}"/>
+      </g>
+    </g>
+  `;
+  wrap.appendChild(svg);
+  // Animation: fly across (left-to-right or right-to-left), wavy path
+  const dx = leftToRight ? "calc(100vw + 100px)" : "calc(-100vw - 100px)";
+  wrap.style.setProperty("--dx", dx);
+  wrap.style.setProperty("--scale", leftToRight ? "1" : "-1");
+  // Random duration 3.8..5.2s for variety
+  const dur = 3.8 + Math.random() * 1.4;
+  wrap.style.animation = `butterflyFly ${dur}s cubic-bezier(.4,.0,.6,1) forwards`;
+  document.getElementById("app").appendChild(wrap);
+  setTimeout(()=>wrap.remove(), dur * 1000 + 200);
+}
+
 /* === Glow under a kitten (transient) === */
 function showKittenGlow(wrap, duration=1800){
   const glow = document.createElement("div");
@@ -1353,6 +1511,11 @@ const PRAISES = {
     { main:"💫 Молодец! 💫",          sub:"Каждый день — чудо!" },
     { main:"🌟 Супер! 🌟",            sub:"Садик стал ещё краше!" }
   ],
+  "100full": [
+    { main:"🦋 Сад полон чудес! 🦋", sub:"Бабочка прилетела!" },
+    { main:"🌈 Волшебный сад! 🌈",   sub:"Два котёнка — счастье!" },
+    { main:"🌟 Чудесно! 🌟",         sub:"Бабочка в гости!" }
+  ],
   50: [
     { main:"🌱 Хорошо!",              sub:"Ещё чуть-чуть!" },
     { main:"🌼 Молодец!",             sub:"Цветок распустился!" }
@@ -1361,8 +1524,12 @@ const PRAISES = {
     { main:"🌿 Готово!",              sub:"Завтра будет ещё лучше" }
   ]
 };
-function celebrate(){
-  const tier = score >= 100 ? 100 : score >= 50 ? 50 : 0;
+function celebrate(gardenFull=false){
+  let tier;
+  if(score >= 100 && gardenFull) tier = "100full";
+  else if(score >= 100) tier = 100;
+  else if(score >= 50)  tier = 50;
+  else tier = 0;
   const list = PRAISES[tier] || PRAISES[0];
   const pick = list[(Math.random()*list.length)|0];
   const main = document.createElement("div");
@@ -1409,17 +1576,30 @@ function runReward(){
 
   // 2. kitten — only at score=100 and when this session is new
   let addedKitten = false;
+  let gardenFull = false;
   if(score === 100 && !state.sessionKittens[session]){
     state.sessionKittens[session] = true;
-    // age up the previously newest kitten
-    if(state.kittens.length > 0){
-      state.kittens[state.kittens.length - 1].ageStage = "cat";
+    // Cap at 2 kittens — beyond that, garden is "full" and gets a butterfly visitor instead.
+    const KITTEN_CAP = 2;
+    if(state.kittens.length >= KITTEN_CAP){
+      // Garden is full — no new kitten, but mark as full so the celebration differs.
+      gardenFull = true;
+    } else {
+      // age up the previously newest kitten
+      if(state.kittens.length > 0){
+        state.kittens[state.kittens.length - 1].ageStage = "cat";
+      }
+      const coat = COATS[(Math.random()*COATS.length)|0];
+      const action = ACTIONS[(Math.random()*ACTIONS.length)|0];
+      // Random facing (50/50) so two cats can both face the same way, opposite, etc.
+      // Slight bias: if there's a previous cat, lean 60% toward opposite direction so
+      // most pairs end up facing each other (but not always — keeps it interesting).
+      const lastFacing = state.kittens.length ? state.kittens[state.kittens.length-1].facing : null;
+      const opp = lastFacing ? (lastFacing === "R" ? "L" : "R") : "R";
+      const facing = Math.random() < 0.6 ? opp : (Math.random() < 0.5 ? "L" : "R");
+      state.kittens.push({ id: Date.now()+Math.random(), ageStage:"kitten", coatColor: coat, action, facing });
+      addedKitten = true;
     }
-    const coat = COATS[(Math.random()*COATS.length)|0];
-    const action = ACTIONS[(Math.random()*ACTIONS.length)|0];
-    const facing = Math.random() < 0.5 ? "L" : "R";
-    state.kittens.push({ id: Date.now()+Math.random(), ageStage:"kitten", coatColor: coat, action, facing });
-    addedKitten = true;
   }
 
   saveState();
@@ -1451,7 +1631,7 @@ function runReward(){
 
   // 5. Confetti + celebration text
   if(score >= 100){
-    setTimeout(()=>{ spawnConfetti(120); celebrate(); }, 400);
+    setTimeout(()=>{ spawnConfetti(120); celebrate(gardenFull); }, 400);
   } else if(score >= 50){
     setTimeout(()=>celebrate(), 400);
   } else {
@@ -1461,13 +1641,18 @@ function runReward(){
   // 6. Sparkles
   for(let i=0;i<6;i++) setTimeout(spawnSparkle, 700 + i*200);
 
+  // 6b. Butterfly bonus — flies across the screen on every score=100
+  if(score === 100){
+    setTimeout(()=>{ spawnButterfly(); }, 900);
+  }
+
   // 7. Kitten add + grow with magic
   if(addedKitten){
     setTimeout(()=>{
       addNewKittenDom(state.kittens[state.kittens.length-1]);
     }, 1300);
   }
-  if(score === 100 && state.kittens.length >= 2){
+  if(score === 100 && state.kittens.length >= 2 && !gardenFull){
     setTimeout(growNewestKitten, 2000);
   }
 }
