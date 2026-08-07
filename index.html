@@ -1812,9 +1812,16 @@ function runReward(){
   // 6. Sparkles
   for(let i=0;i<6;i++) setTimeout(spawnSparkle, 700 + i*200);
 
-  // 6b. Butterfly bonus — flies across the screen on every score=100
+  // 6b. Butterfly bonus — flies across the screen on every score=100,
+  //     AND once more as a long-game reward when the garden is full of
+  //     flowers (>10 across all bushes). Adopted from the Gemini snippet —
+  //     rewards the kid for growing the garden over many sessions, not
+  //     just for one perfect exercise.
   if(score === 100){
     setTimeout(()=>{ spawnButterfly(); }, 900);
+  }
+  if(state.totalFlowers > 10){
+    setTimeout(()=>{ spawnButterfly(); }, 2400);
   }
 
   // 7. Kitten add + grow with magic
@@ -1867,8 +1874,10 @@ function renderGroundDecor(){
    INIT
 ============================================================ */
 function init(){
-  // Show title
-  setTimeout(()=>document.getElementById("title").classList.add("in"), 200);
+  // Show title for ~3.5s, then fade it out so it doesn't sit on top of the
+  // garden forever. (Adopted from the Gemini audit snippet.)
+  setTimeout(()=>document.getElementById("title").classList.add("in"), 300);
+  setTimeout(()=>document.getElementById("title").classList.remove("in"), 3500);
   // Decor (static, deterministic)
   renderGroundDecor();
   // Floating pollen — 12 motes drifting up
@@ -1994,9 +2003,12 @@ function syncRainbow(){
 ============================================================ */
 document.getElementById("reset-btn").addEventListener("click",()=>{
   if(confirm("Сбросить весь прогресс сада? Все котята исчезнут 😿")){
-    state = defaultState();
-    saveState();
-    location.reload();
+    // Wipe storage and redirect to a clean URL — guarantees fresh state
+    // and avoids the brief "old garden → new garden" flash of reload().
+    try{ localStorage.removeItem(STORAGE_KEY); }catch{}
+    const url = new URL(window.location.href);
+    url.search = "";
+    window.location.href = url.toString();
   }
 });
 
