@@ -27,11 +27,12 @@
     --cream:#fff5e1;
     --text:#5a3d4f;
   }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
   html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Comic Sans MS",system-ui,sans-serif;color:var(--text);background:linear-gradient(180deg,var(--sky-1) 0%,var(--sky-2) 45%,var(--sky-3) 100%);user-select:none;-webkit-user-select:none;}
   #app{position:relative;width:100vw;height:100vh;height:100dvh;overflow:hidden;}
   /* === Sun === */
-  .sun{position:absolute;top:7%;right:8%;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff5b3 0%,#ffd966 55%,#ffb84d 100%);box-shadow:0 0 50px rgba(255,220,130,.65),0 0 80px rgba(255,200,120,.35);animation:sunPulse 4s ease-in-out infinite;z-index:1;}
+  .sun{position:absolute;top:7%;right:8%;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff5b3 0%,#ffd966 55%,#ffb84d 100%);box-shadow:0 0 50px rgba(255,220,130,.65),0 0 80px rgba(255,200,120,.35);animation:sunPulse 4s ease-in-out infinite;z-index:1;cursor:pointer;transition:transform .25s ease-out;}
+  .sun:active{transform:scale(.92) rotate(15deg);}
   @keyframes sunPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
   /* === Clouds === */
   .cloud{position:absolute;background:rgba(255,255,255,.85);border-radius:50%;filter:blur(1.8px);animation:drift linear infinite;z-index:1;box-shadow:inset 0 -4px 8px rgba(180,200,220,.25);}
@@ -46,7 +47,8 @@
   /* === Sky overlays === */
   .sky-layer{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 30%,rgba(255,220,230,.6) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(255,230,200,.5) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(200,230,255,.35) 0%,transparent 60%);z-index:0;}
   /* === Background scenery (house on horizon + tree) === */
-  .house-wrap{position:absolute;bottom:32%;left:50%;transform:translateX(-50%);width:78%;max-width:340px;z-index:3;filter:drop-shadow(0 6px 10px rgba(80,60,80,.16));opacity:.95;}
+  .house-wrap{position:absolute;bottom:32%;left:50%;transform:translateX(-50%);width:78%;max-width:340px;z-index:3;filter:drop-shadow(0 6px 10px rgba(80,60,80,.16));opacity:.95;cursor:pointer;transition:transform .18s ease-out;}
+  .house-wrap:active{transform:translateX(-50%) scale(.98);}
   .house-svg{display:block;width:100%;height:auto;}
   .chim-smoke{position:absolute;top:-6px;left:64%;width:14px;height:18px;pointer-events:none;z-index:4;}
   .chim-smoke circle{fill:rgba(255,255,255,.85);filter:blur(1.2px);animation:smokeRise 3.2s ease-in-out infinite;opacity:0;}
@@ -59,11 +61,41 @@
     70% { opacity:.7; }
     100%{ transform:translate(-5px,-22px) scale(1.3); opacity:0; }
   }
-  .tree-wrap{position:absolute;bottom:32%;right:2%;width:20%;max-width:90px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;}
+  .tree-wrap{position:absolute;bottom:32%;right:2%;width:20%;max-width:90px;z-index:2;filter:drop-shadow(0 4px 6px rgba(80,60,80,.12));transform-origin:50% 100%;animation:treeSway 6s ease-in-out infinite;cursor:pointer;}
+  /* Tree "rustle" — triggered on tap: a quick shake + falling leaf emojis */
+  .tree-wrap.rustle{animation:treeRustle .6s ease-in-out;}
+  @keyframes treeRustle{
+    0%,100%{transform:rotate(0);}
+    20%   {transform:rotate(-6deg);}
+    40%   {transform:rotate(6deg);}
+    60%   {transform:rotate(-4deg);}
+    80%   {transform:rotate(2deg);}
+  }
   .tree-svg{display:block;width:100%;height:auto;}
   @keyframes treeSway{0%,100%{transform:rotate(-1deg);}50%{transform:rotate(1.2deg);}}
-  /* === Ground === */
-  .ground{position:absolute;bottom:0;left:0;right:0;height:32%;background:linear-gradient(180deg,var(--grass) 0%,var(--grass-d) 100%);border-top-left-radius:50% 25%;border-top-right-radius:50% 25%;box-shadow:inset 0 4px 0 rgba(255,255,255,.2);z-index:2;}
+  /* === Ground — 3 layers of soft hills for depth (added after Gemini audit) === */
+  .hills-bg{position:absolute;bottom:24%;left:-10%;right:-10%;height:18%;background:#aadaa2;border-radius:50% 50% 0 0 / 100% 100% 0 0;z-index:1;opacity:.75;pointer-events:none;}
+  .hills-mid{position:absolute;bottom:18%;left:-15%;right:-5%;height:22%;background:#8ecc84;border-radius:60% 40% 0 0 / 100% 100% 0 0;z-index:2;pointer-events:none;}
+  .ground{position:absolute;bottom:0;left:-5%;right:-5%;height:32%;background:linear-gradient(180deg,var(--grass) 0%,var(--grass-d) 100%);border-top-left-radius:50% 25%;border-top-right-radius:50% 25%;box-shadow:inset 0 4px 0 rgba(255,255,255,.2);z-index:2;}
+  /* Floating pollen/dust motes drifting up — gentle ambient life */
+  .pollen-container{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden;}
+  .pollen{position:absolute;width:6px;height:6px;background:rgba(255,255,255,.75);border-radius:50%;filter:blur(1px);animation:floatPollen linear infinite;box-shadow:0 0 4px rgba(255,240,200,.6);}
+  @keyframes floatPollen{
+    0%  {transform:translate(0,100vh) scale(.5);opacity:0;}
+    15% {opacity:.85;}
+    85% {opacity:.85;}
+    100%{transform:translate(60px,-10vh) scale(1.2);opacity:0;}
+  }
+  /* Rainbow appears on score=100, fades in/out, sits above the sun */
+  .rainbow{position:absolute;top:8%;left:5%;right:5%;height:180px;border-radius:200px 200px 0 0;border:12px solid transparent;border-top-color:rgba(255,120,150,.55);box-shadow:0 -10px 0 rgba(255,200,100,.5),0 -20px 0 rgba(150,230,160,.5),0 -30px 0 rgba(130,200,255,.5),0 -40px 0 rgba(190,150,255,.5);pointer-events:none;z-index:1;opacity:0;transition:opacity 1.6s ease-in-out;transform:scale(.85);transform-origin:50% 100%;}
+  .rainbow.active{opacity:1;transform:scale(1);}
+  /* Petting heart — floats up from where you pressed on a kitten */
+  .pet-heart{position:fixed;pointer-events:none;z-index:28;font-size:22px;animation:floatHeart 1.2s cubic-bezier(.2,.8,.4,1) forwards;}
+  @keyframes floatHeart{
+    0%  {opacity:1;transform:translate(-50%,0)    scale(.6) rotate(0deg);}
+    50% {opacity:1;transform:translate(-50%,-35px) scale(1.2) rotate(-10deg);}
+    100%{opacity:0;transform:translate(-50%,-70px) scale(.9) rotate(10deg);}
+  }
   .ground::before{content:"";position:absolute;top:-6px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 10% 50%,var(--grass) 0%,transparent 50%),radial-gradient(ellipse at 30% 50%,var(--grass-l) 0%,transparent 60%),radial-gradient(ellipse at 55% 50%,var(--grass) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,var(--grass-l) 0%,transparent 60%),radial-gradient(ellipse at 95% 50%,var(--grass) 0%,transparent 50%);background-size:60px 14px;background-repeat:repeat-x;}
   /* === Bushes (multiple, fixed size, off-center) === */
   .bushes-layer{position:absolute;inset:0;pointer-events:none;z-index:3;}
@@ -147,13 +179,15 @@
   /* === Confetti canvas === */
   #confetti{position:absolute;inset:0;pointer-events:none;z-index:9;}
   /* === Mute button === */
-  .icon-btn{position:absolute;border:none;background:rgba(255,255,255,.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);cursor:pointer;z-index:20;box-shadow:0 4px 14px rgba(120,80,100,.18);transition:transform .15s,opacity .3s;}
-  .icon-btn:active{transform:scale(.9);}
-  .mute-btn{top:max(16px,env(safe-area-inset-top));right:16px;width:46px;height:46px;border-radius:50%;font-size:22px;display:flex;align-items:center;justify-content:center;}
+  .icon-btn{position:absolute;border:none;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;z-index:30;box-shadow:0 4px 16px rgba(100,60,80,.15);transition:transform .15s,background .2s;}
+  .icon-btn:active{transform:scale(.92);}
+  .mute-btn{top:max(16px,env(safe-area-inset-top));right:16px;width:48px;height:48px;border-radius:50%;font-size:22px;display:flex;align-items:center;justify-content:center;}
+  /* Bump status above other panels (was 15) so it doesn't get clipped by the
+     bigger, more opaque buttons at z=30. */
   /* Fish button — sits to the LEFT of mute (right: 16+46+8 = 70), wiggles
      like a fish in water. Tap to "feed" all kittens: each one sticks its
      tongue out and says "ням-ням" in a speech bubble. */
-  .fish-btn{top:max(16px,env(safe-area-inset-top));right:70px;width:46px;height:46px;border-radius:50%;font-size:24px;display:flex;align-items:center;justify-content:center;animation:fishWiggle 2.4s ease-in-out infinite;}
+  .fish-btn{top:max(16px,env(safe-area-inset-top));right:72px;width:48px;height:48px;border-radius:50%;font-size:24px;display:flex;align-items:center;justify-content:center;animation:fishWiggle 2.4s ease-in-out infinite;}
   .fish-btn:active{transform:scale(.9) rotate(20deg);}
   @keyframes fishWiggle{
     0%,100%{transform:rotate(-8deg) translateY(0);}
@@ -162,7 +196,7 @@
     75%    {transform:rotate(8deg)  translateY(-1px);}
   }
   /* === Status panel === */
-  .status{position:absolute;top:max(16px,env(safe-area-inset-top));left:16px;background:rgba(255,255,255,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:18px;padding:10px 14px;font-size:13px;z-index:15;box-shadow:0 4px 14px rgba(120,80,100,.12);line-height:1.5;}
+  .status{position:absolute;top:max(16px,env(safe-area-inset-top));left:16px;background:rgba(255,255,255,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:20px;padding:10px 16px;font-size:13.5px;font-weight:600;z-index:30;box-shadow:0 4px 16px rgba(100,60,80,.12);line-height:1.5;}
   .status p{margin:0;display:flex;align-items:center;gap:6px;}
   .status b{color:var(--bush-d);font-weight:700;margin-left:auto;}
   /* === Reset button === */
@@ -255,10 +289,14 @@
 <body>
 <div id="app">
   <div class="sky-layer"></div>
-  <div class="sun"></div>
+  <div class="pollen-container" id="pollen-box"></div>
+  <div class="rainbow" id="rainbow"></div>
+  <div class="sun" id="sun"></div>
   <div class="cloud c1" style="top:14%;width:140px;height:44px;animation-delay:0s;"></div>
   <div class="cloud c2" style="top:9%;width:100px;height:34px;animation-delay:-45s;"></div>
   <div class="cloud c3" style="top:22%;width:80px;height:28px;animation-delay:-80s;"></div>
+  <div class="hills-bg"></div>
+  <div class="hills-mid"></div>
   <div class="ground"></div>
 
   <div class="house-wrap">
@@ -1759,6 +1797,8 @@ function runReward(){
   } else {
     clearBushHalos();
   }
+  // 4b. Rainbow arch over the sky (score=100)
+  syncRainbow();
 
   // 5. Confetti + celebration text
   if(score >= 100){
@@ -1831,12 +1871,122 @@ function init(){
   setTimeout(()=>document.getElementById("title").classList.add("in"), 200);
   // Decor (static, deterministic)
   renderGroundDecor();
+  // Floating pollen — 12 motes drifting up
+  spawnPollen(12);
+  // Interactive elements: house (light on/off), tree (rustle), petting on kittens
+  wireInteractiveWorld();
+  // Rainbow stays in sync with current score (in case user reloaded mid-session)
+  syncRainbow();
   // Initial render — state BEFORE this exercise
   renderBushes();
   renderAllKittens();
   updateStatus();
   // After 1s pause, run reward
   setTimeout(runReward, 1000);
+}
+
+/* ============================================================
+   AMBIENT: floating pollen particles (12 motes, each with random
+   duration and horizontal drift). Cheap, just 6px divs, GPU-friendly.
+============================================================ */
+function spawnPollen(n=12){
+  const box = document.getElementById("pollen-box");
+  if(!box) return;
+  box.innerHTML = "";
+  for(let i=0;i<n;i++){
+    const p = document.createElement("div");
+    p.className = "pollen";
+    p.style.left = (Math.random() * 100) + "%";
+    p.style.animationDuration = (8 + Math.random() * 10) + "s";
+    p.style.animationDelay = (-Math.random() * 10) + "s";
+    p.style.opacity = (0.4 + Math.random() * 0.5).toFixed(2);
+    box.appendChild(p);
+  }
+}
+
+/* ============================================================
+   INTERACTIVE WORLD — tap the house to toggle its window light,
+   tap the tree to rustle (with falling leaf emojis), pointerdown
+   on a kitten to pet it (purr + heart).
+============================================================ */
+let houseLightOn = true;
+function wireInteractiveWorld(){
+  // 1. House: toggle window glow
+  const house = document.querySelector(".house-wrap");
+  if(house){
+    house.addEventListener("click", () => {
+      houseLightOn = !houseLightOn;
+      const glowStop = house.querySelector("#windowGlow stop");
+      if(glowStop) glowStop.setAttribute("stop-opacity", houseLightOn ? ".55" : "0");
+      // soft switch click
+      if(typeof tone === "function"){
+        tone(houseLightOn ? 880 : 440, 0.15, "sine", 0.07);
+      }
+      // tiny warm/cool puff depending on state
+      const r = house.getBoundingClientRect();
+      const cx = r.left + r.width/2;
+      const cy = r.top  + r.height/2;
+      const colors = houseLightOn ? ["#fff099","#ffd966","#ffb84d"] : ["#9ad7ff","#c89bff"];
+      if(typeof spawnMagicPuff === "function"){
+        spawnMagicPuff(cx, cy, { count: 6, size: 5, distance: 30, colors });
+      }
+    });
+  }
+  // 2. Tree: rustle + falling leaves
+  const tree = document.querySelector(".tree-wrap");
+  if(tree){
+    tree.addEventListener("click", () => {
+      tree.classList.add("rustle");
+      setTimeout(() => tree.classList.remove("rustle"), 620);
+      // two short swooshes
+      if(typeof tone === "function"){
+        tone(320, 0.18, "triangle", 0.05);
+        setTimeout(() => tone(480, 0.18, "triangle", 0.04), 60);
+      }
+      // 3 falling leaf emojis
+      const r = tree.getBoundingClientRect();
+      for(let i=0;i<3;i++){
+        const leaf = document.createElement("div");
+        leaf.className = "magic-star";
+        leaf.textContent = "🍃";
+        leaf.style.left = (r.left + r.width/2 + (Math.random()-0.5)*30) + "px";
+        leaf.style.top  = (r.top + r.height/3 + (Math.random()*10)) + "px";
+        leaf.style.fontSize = (16 + Math.random()*8) + "px";
+        leaf.style.animation = "magicFloat 1.4s ease-out forwards";
+        document.body.appendChild(leaf);
+        setTimeout(() => leaf.remove(), 1500);
+      }
+    });
+  }
+  // 3. Petting on kittens — pointerdown captures long-press intent,
+  //    we only show hearts on press (not on every tap).
+  const row = document.getElementById("kittens-row");
+  if(row){
+    row.addEventListener("pointerdown", (e) => {
+      const k = e.target.closest(".kitten");
+      if(!k) return;
+      // purr
+      if(typeof purr === "function") purr();
+      // a heart at the press point
+      const heart = document.createElement("div");
+      heart.className = "pet-heart";
+      heart.textContent = ["💖","💕","🌸","✨"][(Math.random()*4)|0];
+      heart.style.left = e.clientX + "px";
+      heart.style.top  = e.clientY + "px";
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1300);
+    });
+  }
+}
+
+/* ============================================================
+   RAINBOW — show on score=100, hide otherwise. Sits above the sun,
+   fades in over 1.6s. Combined with the existing butterfly bonus.
+============================================================ */
+function syncRainbow(){
+  const rb = document.getElementById("rainbow");
+  if(!rb) return;
+  rb.classList.toggle("active", score === 100);
 }
 
 /* ============================================================
@@ -1851,13 +2001,16 @@ document.getElementById("reset-btn").addEventListener("click",()=>{
 });
 
 /* ============================================================
-   AUDIO UNLOCK
+   AUDIO UNLOCK — iOS Safari blocks AudioContext until a real user
+   gesture. pointerdown fires for both touch and mouse, before
+   click, so the very first sound (jingle, meow, etc.) is audible.
 ============================================================ */
 function unlockAudio(){
-  if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  try{
+    if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  }catch{}
 }
-document.addEventListener("touchstart", unlockAudio, {once:true});
-document.addEventListener("click", unlockAudio, {once:true});
+document.addEventListener("pointerdown", unlockAudio, {once:true});
 
 /* ============================================================
    GO
