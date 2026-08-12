@@ -250,6 +250,14 @@
     0%  { transform:translateY(0) rotate(0); opacity:.9; }
     100%{ transform:translateY(-30px) rotate(180deg); opacity:0; }
   }
+  /* === Petal scatter — small teardrop petals fly up and away from the bush
+     when the butterfly visits. Teardrop shape, drift upward, gentle rotation. */
+  .petal-scatter{position:fixed;border-radius:60% 0 60% 0;pointer-events:none;z-index:11;box-shadow:0 0 6px currentColor,0 0 2px rgba(255,255,255,.7);transform-origin:center;filter:saturate(1.15);}
+  @keyframes petalScatter{
+    0%  { transform:translate(0,0) scale(.6) rotate(0); opacity:0; }
+    15% { opacity:1; transform:translate(calc(var(--dx)*.15),calc(var(--dy)*.15)) scale(1.1) rotate(calc(var(--rot)*.2)); }
+    100%{ transform:translate(var(--dx),var(--dy)) scale(.4) rotate(var(--rot)); opacity:0; }
+  }
   /* === Rainbow halo on bush — handled by per-bush .bush-halo (defined earlier) === */
   /* === Falling star === */
   @keyframes fallingStar{
@@ -834,33 +842,148 @@ function bushBodySVG(size, nestId){
   `;
 }
 
-/* === Flower SVG (5-petal, with growth scale) === */
+/* === Flower palettes — 4 shapes (5-petal, 6-petal daisy, tulip cup, 5-star),
+   with leaves at the base. Each "kind" is a single color+shape combo.
+   Old kinds (pink/yellow/purple/cream) kept for backward-compat with saved state. */
+const FLOWER_PALETTES = {
+  // 5-petal classic
+  pink:     {shape:"round5", petals:["#ff8fa9","#ffb3c6","#ff8fa9","#ffb3c6","#ff8fa9"], center:"#fff099"},
+  red:      {shape:"round5", petals:["#ff6b7d","#ff8c9e","#ff6b7d","#ff8c9e","#ff6b7d"], center:"#ffd966"},
+  peach:    {shape:"round5", petals:["#ffb59a","#ffd0b5","#ffb59a","#ffd0b5","#ffb59a"], center:"#fff099"},
+  yellow:   {shape:"round5", petals:["#ffd966","#fff099","#ffd966","#fff099","#ffd966"], center:"#ffaa66"},
+  purple:   {shape:"round5", petals:["#c89bff","#dfc1ff","#c89bff","#dfc1ff","#c89bff"], center:"#fff099"},
+  lavender: {shape:"round5", petals:["#bba0e6","#d2bee8","#bba0e6","#d2bee8","#bba0e6"], center:"#ffd966"},
+  cream:    {shape:"round5", petals:["#fff5e1","#fffaf0","#fff5e1","#fffaf0","#fff5e1"], center:"#ffd966"},
+  // 6-petal daisy (open, narrow petals)
+  daisy:    {shape:"round6", petals:["#ffffff","#fff5e1","#ffffff","#fff5e1","#ffffff","#fff5e1"], center:"#ffd966"},
+  // 5-petal small (forget-me-not)
+  blue:     {shape:"round5_small", petals:["#9ad7ff","#bce0ff","#9ad7ff","#bce0ff","#9ad7ff"], center:"#fff099"},
+  sky:      {shape:"round5_small", petals:["#a8d8ff","#c8e6ff","#a8d8ff","#c8e6ff","#a8d8ff"], center:"#fff099"},
+  // tulip cup (3 visible petals, cup shape)
+  tulip_red:  {shape:"tulip", cup:"#ff6b7d", shade:"#d44a5a"},
+  tulip_pink: {shape:"tulip", cup:"#ff8fa9", shade:"#d9768a"},
+  tulip_yel:  {shape:"tulip", cup:"#ffd966", shade:"#d4ad4a"},
+  tulip_pur:  {shape:"tulip", cup:"#c89bff", shade:"#a87ad4"},
+  // 5-point star (angular petals)
+  star_yel:   {shape:"star", petal:"#ffd966", shade:"#ffaa66"},
+  star_white: {shape:"star", petal:"#ffffff", shade:"#fff5e1"},
+  star_blue:  {shape:"star", petal:"#9ad7ff", shade:"#6bb8e6"}
+};
+
+/* === Add two small green leaves at the flower base (called for all shapes) === */
+function appendLeaves(inner, NS){
+  const leafL = document.createElementNS(NS,"ellipse");
+  leafL.setAttribute("cx",-5); leafL.setAttribute("cy",5);
+  leafL.setAttribute("rx",3.4); leafL.setAttribute("ry",1.5);
+  leafL.setAttribute("fill","#7ec474"); leafL.setAttribute("opacity",".85");
+  leafL.setAttribute("transform","rotate(-30)");
+  inner.appendChild(leafL);
+  const leafR = document.createElementNS(NS,"ellipse");
+  leafR.setAttribute("cx",5); leafR.setAttribute("cy",5);
+  leafR.setAttribute("rx",3.4); leafR.setAttribute("ry",1.5);
+  leafR.setAttribute("fill","#7ec474"); leafR.setAttribute("opacity",".85");
+  leafR.setAttribute("transform","rotate(30)");
+  inner.appendChild(leafR);
+}
+
+/* === Flower SVG builder — supports 4 shapes. Leaves are always drawn first
+   (behind the petals) so they peek out from under the flower head. === */
 function makeFlower(cx,cy,kind,size=1){
   const NS = "http://www.w3.org/2000/svg";
+  const def = FLOWER_PALETTES[kind] || FLOWER_PALETTES.pink;
   const outer = document.createElementNS(NS,"g");
   outer.setAttribute("transform",`translate(${cx},${cy}) scale(${size})`);
   const inner = document.createElementNS(NS,"g");
   inner.setAttribute("class","flower");
-  const palettes = {
-    pink:   ["#ff8fa9","#ffb3c6","#ff8fa9","#ffb3c6","#ff8fa9"],
-    yellow: ["#ffd966","#fff099","#ffd966","#fff099","#ffd966"],
-    purple: ["#c89bff","#dfc1ff","#c89bff","#dfc1ff","#c89bff"],
-    cream:  ["#fff5e1","#fffaf0","#fff5e1","#fffaf0","#fff5e1"]
-  };
-  const c = palettes[kind] || palettes.pink;
-  for(let i=0;i<5;i++){
-    const a = (i/5)*Math.PI*2 - Math.PI/2;
-    const px = Math.cos(a)*7, py = Math.sin(a)*7;
-    const e = document.createElementNS(NS,"ellipse");
-    e.setAttribute("cx",px); e.setAttribute("cy",py);
-    e.setAttribute("rx",5.5); e.setAttribute("ry",7.5);
-    e.setAttribute("fill",c[i]); e.setAttribute("opacity",".95");
-    inner.appendChild(e);
+  appendLeaves(inner, NS);
+  if(def.shape === "round5"){
+    for(let i=0;i<5;i++){
+      const a = (i/5)*Math.PI*2 - Math.PI/2;
+      const px = Math.cos(a)*7, py = Math.sin(a)*7;
+      const e = document.createElementNS(NS,"ellipse");
+      e.setAttribute("cx",px); e.setAttribute("cy",py);
+      e.setAttribute("rx",5.5); e.setAttribute("ry",7.5);
+      e.setAttribute("fill",def.petals[i]); e.setAttribute("opacity",".95");
+      inner.appendChild(e);
+    }
+    const ctr = document.createElementNS(NS,"circle");
+    ctr.setAttribute("cx",0); ctr.setAttribute("cy",0);
+    ctr.setAttribute("r",3.4);
+    ctr.setAttribute("fill",def.center);
+    inner.appendChild(ctr);
+  } else if(def.shape === "round6"){
+    // 6 narrow petals, like a daisy
+    for(let i=0;i<6;i++){
+      const a = (i/6)*Math.PI*2 - Math.PI/2;
+      const px = Math.cos(a)*7, py = Math.sin(a)*7;
+      const e = document.createElementNS(NS,"ellipse");
+      e.setAttribute("cx",px); e.setAttribute("cy",py);
+      e.setAttribute("rx",3.4); e.setAttribute("ry",6.8);
+      e.setAttribute("fill",def.petals[i]); e.setAttribute("opacity",".92");
+      inner.appendChild(e);
+    }
+    const ctr = document.createElementNS(NS,"circle");
+    ctr.setAttribute("cx",0); ctr.setAttribute("cy",0);
+    ctr.setAttribute("r",2.8);
+    ctr.setAttribute("fill",def.center);
+    inner.appendChild(ctr);
+  } else if(def.shape === "round5_small"){
+    // 5 small petals, like forget-me-not
+    for(let i=0;i<5;i++){
+      const a = (i/5)*Math.PI*2 - Math.PI/2;
+      const px = Math.cos(a)*5, py = Math.sin(a)*5;
+      const e = document.createElementNS(NS,"ellipse");
+      e.setAttribute("cx",px); e.setAttribute("cy",py);
+      e.setAttribute("rx",3.0); e.setAttribute("ry",4.2);
+      e.setAttribute("fill",def.petals[i]); e.setAttribute("opacity",".95");
+      inner.appendChild(e);
+    }
+    const ctr = document.createElementNS(NS,"circle");
+    ctr.setAttribute("cx",0); ctr.setAttribute("cy",0);
+    ctr.setAttribute("r",1.6);
+    ctr.setAttribute("fill",def.center);
+    inner.appendChild(ctr);
+  } else if(def.shape === "tulip"){
+    // 3 visible petals: back-left, back-right, front center
+    const e1 = document.createElementNS(NS,"ellipse");
+    e1.setAttribute("cx",-4); e1.setAttribute("cy",1);
+    e1.setAttribute("rx",3.5); e1.setAttribute("ry",7);
+    e1.setAttribute("fill",def.shade); e1.setAttribute("opacity",".9");
+    e1.setAttribute("transform","rotate(-18)");
+    inner.appendChild(e1);
+    const e2 = document.createElementNS(NS,"ellipse");
+    e2.setAttribute("cx",4); e2.setAttribute("cy",1);
+    e2.setAttribute("rx",3.5); e2.setAttribute("ry",7);
+    e2.setAttribute("fill",def.shade); e2.setAttribute("opacity",".9");
+    e2.setAttribute("transform","rotate(18)");
+    inner.appendChild(e2);
+    const e3 = document.createElementNS(NS,"ellipse");
+    e3.setAttribute("cx",0); e3.setAttribute("cy",-1);
+    e3.setAttribute("rx",4); e3.setAttribute("ry",7.5);
+    e3.setAttribute("fill",def.cup); e3.setAttribute("opacity","1");
+    inner.appendChild(e3);
+  } else if(def.shape === "star"){
+    // 5 pointed petals (alternating tip/base)
+    for(let i=0;i<5;i++){
+      const a = (i/5)*Math.PI*2 - Math.PI/2;
+      const tip_x = Math.cos(a)*9, tip_y = Math.sin(a)*9;
+      const b1 = a + Math.PI/5;
+      const b2 = a - Math.PI/5;
+      const b1x = Math.cos(b1)*3.5, b1y = Math.sin(b1)*3.5;
+      const b2x = Math.cos(b2)*3.5, b2y = Math.sin(b2)*3.5;
+      const poly = document.createElementNS(NS,"polygon");
+      poly.setAttribute("points",
+        `0,0 ${tip_x.toFixed(1)},${tip_y.toFixed(1)} ${b1x.toFixed(1)},${b1y.toFixed(1)} ${b2x.toFixed(1)},${b2y.toFixed(1)}`);
+      poly.setAttribute("fill",def.petal);
+      poly.setAttribute("opacity",".95");
+      inner.appendChild(poly);
+    }
+    const ctr = document.createElementNS(NS,"circle");
+    ctr.setAttribute("cx",0); ctr.setAttribute("cy",0);
+    ctr.setAttribute("r",2.2);
+    ctr.setAttribute("fill",def.shade);
+    inner.appendChild(ctr);
   }
-  const ctr = document.createElementNS(NS,"circle");
-  ctr.setAttribute("cx",0); ctr.setAttribute("cy",0); ctr.setAttribute("r",3.6);
-  ctr.setAttribute("fill","#fff099");
-  inner.appendChild(ctr);
   outer.appendChild(inner);
   return outer;
 }
@@ -1204,7 +1327,10 @@ function makeKitten(coat, adult, facing="R"){
     g.appendChild(mask);
   }
 
-  // ONE eye
+  // Two eyes — front eye (the one closer to the viewer) is full size,
+  // back eye is slightly smaller, higher and farther from the muzzle.
+  // The 3/4 perspective reads as "the kitten is looking at you".
+  // (Was just one eye before — looked like a cyclops kitten.)
   const eye = document.createElementNS(NS,"ellipse");
   eye.setAttribute("cx",80); eye.setAttribute("cy",48);
   eye.setAttribute("rx",2.8); eye.setAttribute("ry",4);
@@ -1215,6 +1341,17 @@ function makeKitten(coat, adult, facing="R"){
   shine.setAttribute("cx",79.8); shine.setAttribute("cy",47.2); shine.setAttribute("r",0.8);
   shine.setAttribute("fill","#ffffff");
   g.appendChild(shine);
+  // Back eye (smaller, higher, further from the muzzle)
+  const eye2 = document.createElementNS(NS,"ellipse");
+  eye2.setAttribute("cx",72); eye2.setAttribute("cy",46);
+  eye2.setAttribute("rx",2.2); eye2.setAttribute("ry",3.2);
+  eye2.setAttribute("fill","#2a2a2a");
+  eye2.setAttribute("class","eye");
+  g.appendChild(eye2);
+  const shine2 = document.createElementNS(NS,"circle");
+  shine2.setAttribute("cx",71.8); shine2.setAttribute("cy",45.3); shine2.setAttribute("r",0.6);
+  shine2.setAttribute("fill","#ffffff");
+  g.appendChild(shine2);
 
   // nose
   const nose = document.createElementNS(NS,"path");
@@ -1603,6 +1740,60 @@ const BUTTERFLY_COLORS = [
   {wing:"#c89bff", body:"#5a3d7a", accent:"#f0e1ff"},  // purple
   {wing:"#9ad7ff", body:"#3a5a7a", accent:"#e1f0ff"}   // blue
 ];
+/* === Petal scatter — every bloomed flower releases 2-3 small petals that
+   drift up and away when the butterfly visits. Petals inherit the colour of
+   the flower they came from. Direction is biased toward the butterfly's
+   travel direction so it looks like the butterfly's wing-flutter is the
+   cause. Flowers stay on the bush — only petals fly off. */
+function scatterFlowerPetals(leftToRight){
+  const flowers = document.querySelectorAll(".bush-flowers .flower.bloom");
+  if(!flowers.length) return;
+  flowers.forEach((flowerEl, idx) => {
+    const r = flowerEl.getBoundingClientRect();
+    if(!r.width) return;
+    const cx = r.left + r.width/2;
+    const cy = r.top  + r.height/2;
+    // Try to read the petal colour from the first PETAL of the flower —
+    // SKIP the leaf ellipses (cx around ±5, fill #7ec474) so the flying
+    // petal matches the actual flower colour, not green leaves.
+    let color = "#ff8fa9";
+    try{
+      const allPaint = flowerEl.querySelectorAll("ellipse,polygon");
+      for(const el of allPaint){
+        const fill = el.getAttribute("fill") || "";
+        if(fill && fill !== "#7ec474"){ color = fill; break; }
+      }
+    }catch{}
+    // 2-3 petals per flower
+    const n = 2 + ((Math.random()*2)|0);
+    for(let i=0;i<n;i++){
+      // Stagger so the garden doesn't all release petals in a single frame.
+      const delay = idx*22 + i*45 + ((Math.random()*60)|0);
+      setTimeout(()=>{
+        const p = document.createElement("div");
+        p.className = "petal-scatter";
+        p.style.background = color;
+        p.style.color = color;
+        p.style.width  = (14 + Math.random()*5) + "px";
+        p.style.height = (18 + Math.random()*5) + "px";
+        p.style.left = (cx + (Math.random()-0.5)*8) + "px";
+        p.style.top  = (cy + (Math.random()-0.5)*6) + "px";
+        // Drift upward 60-110px, with sideways bias matching butterfly direction
+        const dxBase = leftToRight ? 1 : -1;
+        const dx = dxBase * (35 + Math.random()*50) + (Math.random()-0.5)*30;
+        const dy = -(70 + Math.random()*60);
+        const rot = ((Math.random()*720 - 360)|0) + "deg";
+        p.style.setProperty("--dx", dx + "px");
+        p.style.setProperty("--dy", dy + "px");
+        p.style.setProperty("--rot", rot);
+        p.style.animation = "petalScatter 1.7s cubic-bezier(.2,.7,.4,1) forwards";
+        document.body.appendChild(p);
+        setTimeout(()=>p.remove(), 1900);
+      }, delay);
+    }
+  });
+}
+
 function spawnButterfly(){
   const colors = BUTTERFLY_COLORS[(Math.random()*BUTTERFLY_COLORS.length)|0];
   const leftToRight = Math.random() < 0.5;
@@ -1615,6 +1806,10 @@ function spawnButterfly(){
   const yBand = 35 + Math.random() * 25;   // 35..60% from top
   wrap.style.top = yBand + "%";
   wrap.dataset.ltr = leftToRight ? "1" : "0";
+  // Petal scatter — every bloomed flower releases 2-3 small petals that
+  // drift up and away as the butterfly arrives. (Bug fix: was missing —
+  // user said "разлетаются" (fly apart) when butterfly appears.)
+  scatterFlowerPetals(leftToRight);
   // SVG
   const svg = document.createElementNS(NS, "svg");
   svg.setAttribute("viewBox", "0 0 60 50");
@@ -1775,20 +1970,26 @@ function runReward(){
   updateStatus();
 
   // 3. animate flowers blooming on bushes (one at a time, with magic)
+  //    saveState is called INSIDE each setTimeout so progress persists even
+  //    if the user closes the tab mid-bloom. (Was: saveState was called once,
+  //    synchronously, before the setTimeouts fired — so the bushes never
+  //    saved any flowers to localStorage. Found via Playwright dump.)
   if(addedFlowers > 0){
-    const kinds = ["pink","yellow","purple","cream"];
-    let flowerTimers = [];
+    const kinds = ["pink","red","peach","yellow","purple","lavender","cream",
+                   "daisy","blue","sky",
+                   "tulip_red","tulip_pink","tulip_yel","tulip_pur",
+                   "star_yel","star_white","star_blue"];
     for(let i=0;i<addedFlowers;i++){
       const k = kinds[(Math.random()*kinds.length)|0];
-      flowerTimers.push(setTimeout(()=>{
+      setTimeout(()=>{
         if(i===0) chime();
         const r = placeFlowerInGarden(k);
         if(r) purr();
-      }, 700 + i*650));
+        // Persist after each placement so progress isn't lost on reload
+        state.totalFlowers = state.bushes.reduce((s,b)=>s+b.flowers.length, 0);
+        saveState();
+      }, 700 + i*650);
     }
-    // Update totalFlowers AFTER spawning
-    state.totalFlowers = state.bushes.reduce((s,b)=>s+b.flowers.length, 0);
-    saveState();
   }
 
   // 4. Rainbow halo on front-row bushes at score=100
